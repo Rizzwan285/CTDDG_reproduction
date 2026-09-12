@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model outputs and checkpoints
+checkpoints/
+runs/
+logs/
+wandb/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Large/generated project files
+results/
+outputs/
+generated/
+Molecular_dynamics_files.zip
+Moleculsr_docking_top10GeneratedMol.zip
+
+# Datasets
+datasets/
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
