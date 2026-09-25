@@ -36,3 +36,14 @@ datasets/
 .DS_Store
 .vscode/
 .idea/
+
+# ==============================
+# Additional Model Files
+# ==============================
+
+# Large trained model files
+*.pkl
+*.h5
+*.hdf5
+*.onnx
+
