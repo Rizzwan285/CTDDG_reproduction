@@ -1,0 +1,83 @@
+torch 2.4.1+cu121 | rdkit 2026.03.6 | numpy 2.4.6
+repo      /home/muhamed/repo/CTDDG
+fold      d1
+device    cuda:0
+report    /home/muhamed/repo/CTDDG/outputs/diagnostics/phase0_d1.json
+[OK]   SETUP atom vocabulary: 65 atom types, 4 bond types
+       chembl.txt                              1,090,529 rows      48.4 MB
+       chembl_final.txt                        1,090,529 rows      50.6 MB
+       chembl_with_ames_predictions.csv        1,090,529 rows     186.9 MB
+       chembl_toxicity_labels.csv              1,207,359 rows     377.5 MB
+[OK]   F stage-1 data file: DATA_PATH holds 1,090,529 rows = the FILTERED count. Blocker B2 (leakage) is most likely FALSE - confirm with check F2 below
+       canonicalising 1,090,529 pretraining molecules (a few minutes)...
+[OK]   F2 ligand leakage: 0 of 9,113 held-out ligands (0.00%) are in the pretraining set [176s]
+       BN train-mode steps   480000
+       trainer.pt counter    480000
+       adam step count       480000
+       log.out last step     480000  (5433 data rows)
+       log.out header        step	time(h)	loss	lr	l_nontoxic	l_toxic
+       policy_0 absmax       18.072006225585938   (0.0 => never trained)
+       finite float tensors  69/69
+[OK]   G stage-1 counters: all counters agree at 480,000 iterations. Blocker B1 RESOLVED
+[OK]   G2 checkpoint finiteness: all 69 float tensors finite
+       rebuild meta: 7083 molecules, acc 0.8108680310515173, trained 2026-10-11 00:03:35
+[FAIL] H Ames RF identity: ames_random_forest.meta.json exists, so 02's RF_AUTO_TRAIN REBUILT the forest. The ChEMBL labels came from the original and the BindingDB labels from this rebuild - two definitions of toxic in one objective. Re-run the ChEMBL annotation cells of 02_random_forest_classifier.py
+[FAIL] E1 traverse_graph on salts: 13 of 14 atoms left unvisited on 'CC(=O)Oc1ccccc1C(=O)O.Cl' - every bond in that training target is mis-wired
+       train      582 of 227,093 ligands are multi-fragment (0.3%)
+       test       155 of  11,049 ligands are multi-fragment (1.4%)
+[FAIL] E2 salt census: up to 1.4% of ligands are multi-fragment and every one of them is a corrupted training target. Fix in assemble_pairs
+[OK]   E3 ChEMBL salt census: 0 of 1,090,529 molecules in chembl.txt are multi-fragment
+[OK]   A0 checkpoint transfer: every stage-1 tensor loaded into the unconditional model
+       pretrained policy_0: entropy 1.007 (uniform = 4.174)
+       top-5 first atoms: [(('C', 0, 0), 0.6607), (('O', 0, 0), 0.2233), (('N', 0, 0), 0.0545), (('F', 0, 0), 0.0417), (('Cl', 0, 0), 0.0095)]
+
+       2000 unconditional samples in 13s
+       5 hit the 100-step cap without emitting `end`
+          1265  valid
+           361  KekulizeException
+           163  AtomValenceException
+           132  graph build
+            79  AtomKekulizeException
+[WARN] A unconditional validity: 63.2% valid - stage 1 is degraded but not destroyed. Both stages contribute
+
+       logit range [-35288.7, 1496.6] over 202,285,662 logits; 7.9426% at the +/-80 clamp
+[FAIL] D logit clamp: the clamp binds on 7.943% of logits, flattening the action distribution and zeroing those gradients. Replace with a log-space max-shifted softmax in ALL THREE notebooks
+[INFO] B conditional sample census: 2,421 of 10,400 samples carry a SMILES (23.3%)
+       valid     n= 2,421  mean   30.3  median  30.0  p90  42.0  p99  54.8  max    64
+       invalid   n= 7,979  mean   39.3  median  36.0  p90  58.0  p99  95.0  max    99
+[OK]   C decode truncation: only 1.1% of invalid molecules are near the cap; truncation is NOT the cause. Leave MAX_DECODE_STEPS at 100 (upstream behaviour)
+==============================================================================
+PHASE-0 DIAGNOSTICS - fold d1 - 2026-10-17 13:48:32
+==============================================================================
+  FAIL   D      logit clamp
+              the clamp binds on 7.943% of logits, flattening the action distribution and zeroing those gradients. Replace with a log-space max-shifted softmax in ALL THREE notebooks
+  FAIL   E1     traverse_graph on salts
+              13 of 14 atoms left unvisited on 'CC(=O)Oc1ccccc1C(=O)O.Cl' - every bond in that training target is mis-wired
+  FAIL   E2     salt census
+              up to 1.4% of ligands are multi-fragment and every one of them is a corrupted training target. Fix in assemble_pairs
+  FAIL   H      Ames RF identity
+              ames_random_forest.meta.json exists, so 02's RF_AUTO_TRAIN REBUILT the forest. The ChEMBL labels came from the original and the BindingDB labels from this rebuild - two definitions of toxic in one objective. Re-run the ChEMBL annotation cells of 02_random_forest_classifier.py
+  WARN   A      unconditional validity
+              63.2% valid - stage 1 is degraded but not destroyed. Both stages contribute
+  INFO   B      conditional sample census
+              2,421 of 10,400 samples carry a SMILES (23.3%)
+  PASS   A0     checkpoint transfer
+              every stage-1 tensor loaded into the unconditional model
+  PASS   C      decode truncation
+              only 1.1% of invalid molecules are near the cap; truncation is NOT the cause. Leave MAX_DECODE_STEPS at 100 (upstream behaviour)
+  PASS   E3     ChEMBL salt census
+              0 of 1,090,529 molecules in chembl.txt are multi-fragment
+  PASS   F      stage-1 data file
+              DATA_PATH holds 1,090,529 rows = the FILTERED count. Blocker B2 (leakage) is most likely FALSE - confirm with check F2 below
+  PASS   F2     ligand leakage
+              0 of 9,113 held-out ligands (0.00%) are in the pretraining set [176s]
+  PASS   G      stage-1 counters
+              all counters agree at 480,000 iterations. Blocker B1 RESOLVED
+  PASS   G2     checkpoint finiteness
+              all 69 float tensors finite
+  PASS   SETUP  atom vocabulary
+              65 atom types, 4 bond types
+------------------------------------------------------------------------------
+  FAIL: 4  WARN: 1  PASS: 8  INFO: 1
+
+  report -> /home/muhamed/repo/CTDDG/outputs/diagnostics/phase0_d1.json

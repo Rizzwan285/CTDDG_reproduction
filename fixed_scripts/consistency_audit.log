@@ -1,0 +1,18 @@
+==============================================================================
+CTDDG cross-notebook consistency audit  (/home/muhamed/repo/CTDDG/fixed_scripts)
+==============================================================================
+  OK     single_reorder           identical across 2 file(s)
+  OK     single_expand            identical across 2 file(s)
+  OK     merge_single_0           identical across 2 file(s)
+  OK     merge_single             identical across 2 file(s)
+  OK     traverse_graph           identical across 2 file(s)
+  OK     strip_salt               identical across 2 file(s)
+  OK     segment_sum              identical across 4 file(s)
+  OK     _concat_neighbourhoods   identical across 4 file(s)
+  OK     Linear_BN                identical across 4 file(s)
+  OK     _PHYSCHEM                identical across 2 file(s)
+  OK     _rand_action             identical across 2 file(s)
+------------------------------------------------------------------------------
+  11 identical | 0 known-benign | 0 DRIFT
+
+  Shared definitions are consistent.

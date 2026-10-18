@@ -1,0 +1,4 @@
+source: /home/claude/ctddg/pretraining_torch.py
+
+traverse_graph: 2400/2400 traversals are a complete permutation with log_p <= 0
+single_reorder round trip: 240/240 rebuild the original molecule

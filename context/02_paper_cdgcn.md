@@ -321,7 +321,14 @@ Porting this loop and multiplying its per-molecule likelihood by CTDDG's Eq. 8 w
 shortest credible path to a conditional CTDDG model. The alternative — writing the loop from
 scratch — is strictly more work for the same result.
 
-> Note the data file it expects, `d3_tr_cdgcn.txt`, is the tab-delimited SMILES + embedding
-> file described in [04_model_architecture.md](04_model_architecture.md) §5.1. This
-> repository's preprocessing notebook already writes that format; what it has not produced is
-> the embeddings that go in it.
+> **Done, 2026-10.** `02_finetune_ctddg.ipynb` is that port, in PyTorch, with the Eq. 8 weight
+> applied. It keeps this notebook's hyperparameters (`lr = 1e-4`, `decay = 0.002`,
+> `max_epochs = 10`, `summary_step = 200`, `batch_size = 8`, `N_C = 6165`) but **lowers
+> `patience` from 10 to 3**, because 10 with `max_epochs = 10` can never fire — early stopping
+> in the reference is decorative. See [04](04_model_architecture.md) §8.1.
+>
+> It also **does not use** the tab-delimited `d3_tr_cdgcn.txt` format this notebook expects
+> ([04](04_model_architecture.md) §5.1). Pairs are assembled straight from the raw fold files
+> and embeddings are read from `*_unique_embeddings_bepler.h5`, so that intermediate file is no
+> longer produced. If you work from `../CDGCN/models/Finetuning.ipynb` directly, you will still
+> need it.

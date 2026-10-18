@@ -7,9 +7,14 @@
 > the code **in this repository** actually does (§9).
 >
 > Sources: CDGCN §2.1–2.3, CTDDG §2.2–2.4 (PDFs in `../CTDDG_new/papers/`), and the code here:
-> `code/pretraining.py` (the upstream export, line numbers below refer to it),
-> `code/pretraining copy.ipynb` (the rewrite), and `code/Generating_samples.ipynb`.
+> `code/pretraining.py` (the upstream MXNet export, line numbers below refer to it),
+> `code/pretraining copy.ipynb` (the superseded MXNet rewrite), the **PyTorch pretraining port**
+> and **`02_finetune_ctddg.ipynb`** (§9), and `code/Generating_samples.ipynb`.
 > Where the code diverges from the papers it is flagged **⚠ CODE**.
+>
+> §1–§7 describe published work and are stable. §8–§9 describe this tree and move; they were
+> last checked **2026-10-11**. For what has been *run*, see
+> [05_training_runs_and_diagnostics.md](05_training_runs_and_diagnostics.md).
 
 ---
 
@@ -30,7 +35,7 @@
 | `l` | Number of GCN layers | **6** | `len(F_h)` |
 | `K` | Generation paths sampled per molecule | **5** | `k` / `K_PATHS` |
 | `α` | Coefficient of randomness in `Q_α` | **0.8** | `p` / `P_ALPHA` |
-| `N` | Minibatch size | **8** (paper) / **16** (rewrite) | `batch_size` / `BATCH_SIZE` |
+| `N` | Minibatch size | **8** (paper; and stage 2 here) / **16** (stage 1 as run here ⚠) | `batch_size` / `BATCH_SIZE` |
 | `λ` | Toxicity trade-off (CTDDG only) | **1** | `LAMBDA_TOX` |
 
 ---
@@ -337,26 +342,41 @@ trade-off parameter, **fixed to 1** in the paper.
 
 Only one branch is active per molecule. At `λ = 1` the weight is simply **±1**.
 
-Setting `λ = 0` — or `tox` all zeros — recovers CDGCN's loss exactly. **CDGCN is the `λ = 0`
-special case of CTDDG.**
+> ⚠ **Correction (2026-10-11).** An earlier version of this file said "`λ = 0` recovers CDGCN's
+> loss exactly; CDGCN is the `λ = 0` special case of CTDDG." **That is wrong.** At `λ = 0` the
+> weight is `1 − (1+0)·tox`, i.e. **1 for non-toxic and 0 for toxic** — toxic ligands are
+> *dropped from the batch average*, not trained on normally. CDGCN's loss needs weight 1 on
+> everything.
+>
+> What *is* true: setting `tox` to all zeros recovers CDGCN exactly. And `λ = 0` is still a
+> useful **control**, because it removes the gradient reversal while leaving everything else in
+> place — it just trains on ~78% of the data. See
+> [05](05_training_runs_and_diagnostics.md) §5 B for how to read it.
 
 ### 6.6 How it is implemented here
 
-`code/pretraining copy.ipynb`, at the end of `MoleculeGenerator._likelihood`:
+**Both** the PyTorch pretraining port and `02_finetune_ctddg.ipynb` end
+`MoleculeGenerator._likelihood` the same way:
 
 ```python
-# Original CDGCN log-likelihood calculation
 l = log_p_x - log_p_sigma
-l = logsumexp(l, axis=1) - math.log(float(iw_size))
+l = torch.logsumexp(l, dim=1) - math.log(float(iw_size))     # Eq. 3, shape [batch_size]
 
-# CTDDG Eq. 8
-tox_labels = tox_class_batch.reshape((batch_size, iw_size))[:, 0]
-tox_weight = 1.0 - (1.0 + LAMBDA_TOX) * tox_labels
-l_weighted = l * tox_weight
-return l_weighted
+tox_labels = tox_class_batch.reshape(batch_size, iw_size)[:, 0]   # all K paths share the label
+if TOX_FLOOR is not None:                                          # F13, off by default
+    l = torch.where(tox_labels > 0, torch.clamp(l, min=TOX_FLOOR), l)
+l_weighted = l * (1.0 - (1.0 + LAMBDA_TOX) * tox_labels)           # Eq. 8
 ```
 
-and `forward` returns `-l_weighted.mean()` when `self.mode == 'loss'`.
+and `forward` returns `-l_weighted.mean()` when `self.mode == 'loss'`. `λ = 1.0`,
+`TOX_FLOOR = None` in both stages, so **the default objective is Eq. 8 exactly as published**.
+
+`02_finetune_ctddg.ipynb` additionally records `last_l` as the **unfloored** bound, so every
+reported metric stays a function of the model rather than of `TOX_FLOOR`, and raises if
+`tox_class` does not have exactly `batch_size × K` entries.
+
+**Verified correct** [CONFIRMED, 2026-10-11] by reconciling a real training log against the
+closed form — see [05](05_training_runs_and_diagnostics.md) §3 D1.
 
 > **⚠ Shape trap — this is why the `[:, 0]` is there.** `l` has shape `[batch_size]` (after
 > `logsumexp` over the `K` paths) but `tox_class` arrives with `K` entries per molecule, shape
@@ -365,18 +385,32 @@ and `forward` returns `-l_weighted.mean()` when `self.mode == 'loss'`.
 > correct. Verify on a tiny mixed-label batch before any long run: the sign of `l` must flip on
 > exactly the toxic molecules.
 
-Two review items on this objective are still **open** (see `code/PRETRAINING_REVIEW.md`):
+Status of the two review items on this objective (`code/PRETRAINING_REVIEW.md`):
 
-- **F12** — log the toxic and non-toxic branch means separately. A single scalar loss hides
-  whether toxicity suppression is working or merely dominating.
-- **F13** — guard the toxic branch. Maximising `−ℓ` for toxic molecules is **unbounded below**:
-  nothing stops the model driving their log-likelihood to −∞, and `clip_grad = 3.0` only slows
-  it. If the loss starts marching towards large negative values, add a floor:
-  ```python
-  tox_floor = -150.0
-  l = nd.where(tox > 0, nd.maximum(l, tox_floor), l)
-  ```
-  (Not in the paper — a stabiliser.)
+- **F12 — ✅ done.** Both PyTorch stages log the branch means separately (`l_nontoxic` /
+  `l_toxic` columns). This is what made the diagnosis in `05` possible at all: a single scalar
+  loss hides whether suppression is working or merely dominating.
+- **F13 — ⚙️ implemented, disabled.** Maximising `−ℓ` for toxic molecules is **unbounded below**.
+  The gradient does not vanish as it succeeds — it grows, since `∂ log p / ∂p = 1/p` — so
+  `clip_grad = 3.0` bounds per-element step size but neither direction nor the number of steps.
+  `λ` scales the term; it does not bound it. `TOX_FLOOR = None` keeps the paper-faithful default.
+
+> ⚠ **The `-150.0` floor value suggested in earlier drafts of this file is not justified** and
+> should not be used as a default. A floor only binds while toxic `ℓ` is above it, so it must be
+> set from the **start** of a run, and choosing a value needs the toxic-`ℓ` distribution at step
+> 0 — which has not been measured. In the one run on record, toxic `ℓ` was already at −287 by
+> fine-tuning iteration 200, so −150 would bind on essentially every toxic molecule immediately,
+> making the branch inert (equivalent to `λ = 0`) while still reporting as Eq. 8.
+>
+> ⚠ **A floor in stage 2 alone cannot work**, because stage 1 runs the same unbounded reversal
+> and the suppression is inherited. It would have to go into pretraining, i.e. a re-run. See
+> [05](05_training_runs_and_diagnostics.md) §3 D4 and §4 B4.
+
+**Empirically, Eq. 8 as published did not converge in this reproduction.** One fine-tuning run
+on fold d1 showed non-toxic validation NLL degrading from epoch 1 onwards while held-out
+toxicity separation plateaued after epoch 2. The published code never implemented Eq. 8
+(`03` §11), so there is no reference trajectory to compare against. Details, numbers and the
+controls that would isolate the cause: [05](05_training_runs_and_diagnostics.md).
 
 ---
 
@@ -451,33 +485,58 @@ The released configuration, as written to `checkpoints/configs.json` by a run he
 
 ### 8.1 Training schedules — they differ by phase
 
-| | Pretraining (paper / upstream) | Pretraining (rewrite here) | Fine-tuning (`../CDGCN`) |
-|---|---|---|---|
-| Batch size | **8** | **16** ⚠ | 8 |
-| Learning rate | 1e-3 | 1e-3 | **1e-4** |
-| Decay | 1e-3 per 100 steps | 1e-3 per 100 steps | **0.002** per 100 steps |
-| Grad clip | 3.0 | 3.0 | 3.0 |
-| Length | 480,000 iterations | 480,000 iterations | **10 epochs**, early stopping `patience=10` |
-| Checkpoint every | 500 steps | **5 steps** ⚠ | 200 steps |
+| | Pretraining (paper / upstream) | **Stage 1 as run here** (PyTorch) | Fine-tuning (`../CDGCN` reference) | **Stage 2 as run here** (PyTorch) |
+|---|---|---|---|---|
+| Batch size | **8** | **16** ⚠ | 8 | **8** ✅ |
+| Learning rate | 1e-3 | 1e-3 | 1e-4 | 1e-4 |
+| Decay | 1e-3 per 100 steps | 1e-3 per 100 steps | 0.002 per 100 steps | 0.002 per 100 steps |
+| Grad clip | 3.0 | 3.0 | 3.0 | 3.0 (element-wise, `clip_grad_value_`) |
+| Length | 480,000 iterations | 480,000 target ⚠ *reached?* | 10 epochs, `patience=10` | 10 epochs, **`patience=3`** ⚠ |
+| Checkpoint every | 500 steps | 500 steps | 200 steps | 200 iterations + every epoch end + on SIGTERM/SIGINT |
+| `λ` / floor | 1 / — | 1.0 / `None` | n/a | 1.0 / `None` |
 
-> ⚠ Both flagged values in the rewrite need attention before a real run — the batch size breaks
-> comparability with the published tables, and `SUMMARY_STEP = 5` writes ~84 MB of checkpoint
-> per 5 iterations. See [01](01_project_background_and_motivation.md) §5.3.
+> ⚠ `BATCH_SIZE = 16` in stage 1 breaks comparability with the published tables; stage 2 is back
+> at the paper's 8, which makes the two stages inconsistent with each other as well.
+>
+> ⚠ `PATIENCE = 3` in stage 2 is a **deviation**. The CDGCN reference pairs `patience = 10` with
+> `max_epochs = 10`, which can never fire — early stopping there is decorative. It was lowered
+> after a run in which validation peaked at epoch 1 and the remaining nine epochs produced
+> checkpoints that could never be selected. Revert to 10 if you want the reference's effective
+> behaviour. See [05](05_training_runs_and_diagnostics.md) §2.
+>
+> ⚠ Stage 1's logged length is **unverified** — see [05](05_training_runs_and_diagnostics.md)
+> §4 B1.
 
 **Total parameters: 6,986,506** — printed by the rewrite's model-construction cell, and
 consistent with the 27,950,253-byte `ckpt.params` (≈ 4 bytes × 6.99 M). The GRU accounts for
 ~79% of them.
 
-Framework: **MXNet** — 1.7.0 in CDGCN, 1.9.1 in the CTDDG environment (`ctddg_env`,
-Python 3.9). Single GPU. `trainer.step(batch_size=1)` is **correct** in both phases, because
-`forward` already averages over the batch; changing it to the real batch size would divide the
-learning rate by that factor.
+Framework: **PyTorch** for everything live (2026-10). The MXNet lineage — 1.7.0 in CDGCN,
+1.9.1 in `ctddg_env`, Python 3.9 — remains for the superseded notebooks. Single GPU throughout.
+
+In MXNet, `trainer.step(batch_size=1)` is **correct** in both phases, because `forward` already
+averages over the batch; changing it to the real batch size would divide the learning rate by
+that factor. The PyTorch port needs no equivalent — but it **does** need
+`optimizer.zero_grad()`, since Gluon overwrites gradients while PyTorch accumulates them. That
+omission is the single most common MXNet→PyTorch porting bug and is handled in both stages.
 
 ---
 
 ## 9. Implementation reality in *this* repository
 
-Two pretraining implementations coexist here. Know which one you are reading.
+**Three pretraining implementations now coexist, plus a fine-tuning notebook.** Know which one
+you are reading. Checked 2026-10-11.
+
+| | Framework | Role today |
+|---|---|---|
+| `code/pretraining.ipynb` + `.py` | MXNet | Upstream Colab export. Audit baseline. **Eq. 8 absent** |
+| `code/pretraining copy.ipynb` | MXNet | The F1–F13 rewrite. **Superseded** — did not produce the current checkpoint |
+| PyTorch pretraining port (filename not recorded here; header *"CTDDG Pretraining — PyTorch port"*) | PyTorch | **Stage 1 as actually run.** Produced `checkpoints/ckpt.pt` |
+| `02_finetune_ctddg.ipynb` | PyTorch | **Stage 2.** The conditional loop the repository used to lack |
+
+The table below compares the two MXNet pretraining notebooks, which is where the audit trail
+lives. The PyTorch port carries the rewrite's fixes forward; its own specifics are in
+[01](01_project_background_and_motivation.md) §5.3.2.
 
 | | `code/pretraining.ipynb` + `.py` | `code/pretraining copy.ipynb` |
 |---|---|---|
@@ -497,15 +556,18 @@ Two pretraining implementations coexist here. Know which one you are reading.
 
 | Papers describe | This repository contains |
 |---|---|
-| Two-phase training (unconditional pretrain → conditional fine-tune) | Pretraining only. `CVanillaMolGen_RNN` is defined in `code/Generating_samples.ipynb`, but **no fine-tuning training loop exists here**. The reference implementation is `../CDGCN/models/Finetuning.ipynb` |
-| pkCSM-labelled BindingDB ligands | Nothing — no pkCSM code, data or labels |
-| `Embed_p` producing `c` for each protein | The **call** exists (`prose/embed_sequences.py --pool avg`, preprocessing cell 82) but has never been run: `*_bepler.fa` inputs are present for all ten splits, **no `*_embeddings_bepler.txt` outputs are** |
+| Two-phase training (unconditional pretrain → conditional fine-tune) | ✅ **Both stages now exist in PyTorch** and have each been run once. `CVanillaMolGen_RNN` lives in `02_finetune_ctddg.ipynb` (and in `code/Generating_samples.ipynb` for the sampler) |
+| pkCSM-labelled BindingDB ligands | ❌ Still no pkCSM. **The repo's own Ames RF labels them instead** — an experimental deviation, cached with a SHA-256 of the model that wrote it |
+| `Embed_p` producing `c` for each protein | ✅ **Fold d1 done.** `01_generate_prose_embeddings.ipynb` (env `bioemb`) writes `*_unique_embeddings_bepler.h5` — note `.h5`, not the `.txt` §5.1 describes. d2–d5 unverified |
 | CDK2 case study, MACCS/Tanimoto/PLIP/MM-PBSA analysis | Only the authors' *result* archives (`Molecular_dynamics_files.zip`, `Moleculsr_docking_top10GeneratedMol.zip`, `supplimentaryAPIN.pdf`) — not the code |
 
 **Consequence:** any checkpoint produced by `code/pretraining.ipynb` is a **CDGCN unconditional
-generator**, regardless of what the directory is named. A checkpoint from
-`code/pretraining copy.ipynb` would be a genuine CTDDG-objective pretrained model — but
-**none has been trained yet**: `checkpoints/log.out` contains only its header row.
+generator**, regardless of what the directory is named, because Eq. 8 is absent there.
+
+`checkpoints/ckpt.pt` was produced by the **PyTorch port**, which *does* apply Eq. 8 at
+`λ = 1.0`. So it is a **CTDDG-objective checkpoint** — settled by reading the source, not by
+inspecting the file, which stores no λ and no objective flag. How many iterations it represents
+is a separate and still-open question: [05](05_training_runs_and_diagnostics.md) §4 B1.
 
 ---
 

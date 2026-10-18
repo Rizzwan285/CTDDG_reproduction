@@ -415,28 +415,52 @@ the case-study analysis.
 
 ### 11.1 Which of those gaps this reproduction has closed
 
-Verified against the working tree, 2026-09-26. Full detail in
-[01_project_background_and_motivation.md](01_project_background_and_motivation.md) §5.
+Verified against the working tree, 2026-09-26; **updated 2026-10-11**. Full detail in
+[01_project_background_and_motivation.md](01_project_background_and_motivation.md) §5 and
+[05_training_runs_and_diagnostics.md](05_training_runs_and_diagnostics.md).
 
 | # (from the table above) | Status here |
 |---|---|
 | 1 — Eq. 8 not implemented | ✅ **Closed.** Implemented in `code/pretraining copy.ipynb` with `LAMBDA_TOX = 1.0` |
 | 2 — ChEMBL labels all `1` | ✅ **Closed.** `code/random_forest_classifier.ipynb` trains the Ames RF (ROC-AUC 0.890) and writes `datasets/data/chembl/chembl_toxicity_labels.csv` — 23.8% toxic. ⚠ The upstream `chembl_final.txt` is still the all-`1` dummy; do not train on it |
-| 3 — no pkCSM labels for BindingDB | ❌ **Open.** Nothing yet. Labeller for the fine-tuning set is still undecided |
-| 4 — no fine-tuning loop | ❌ **Open** here — but the CDGCN clone has one (`../CDGCN/models/Finetuning.ipynb`), and porting it is the planned route |
+| 3 — no pkCSM labels for BindingDB | ⚙️ **Diverged, not closed.** The fine-tuning notebook labels BindingDB ligands with **the repo's own Ames RF**, not pkCSM — consistent across both phases, but a deviation from the paper. Table 3's "% toxic by pkCSM" is therefore **not** reproducible without pkCSM |
+| 4 — no fine-tuning loop | ✅ **Closed.** `02_finetune_ctddg.ipynb` — a self-contained PyTorch conditional loop, built against `../CDGCN/models/Finetuning.ipynb`. Run once on fold d1; the result does not converge, see [05](05_training_runs_and_diagnostics.md) |
 | 5 — run named `base_cdgcn` | ✅ **Closed.** The rewrite checkpoints to `checkpoints/` with no misleading name |
 | 6 — no CDK2 / MACCS / PLIP / MM-PBSA code | ❌ **Open.** Still only the authors' result archives |
 | 7 — pair-count inconsistency | ℹ️ **Unresolved, and now measurable:** the five folds on disk hold 1,042 / 1,000 / 1,004 / 1,002 / 1,036 train proteins and 104 / 112 / 122 / 103 / 124 test proteins, with 143,999 ligand–protein pair lines in the d2 train split. Neither published figure matches |
 
-Two defects **introduced** by the reproduction, not present upstream, both worth fixing before
-a real training run:
+Defects **introduced** by the reproduction, not present upstream. Both were carried into the
+PyTorch port and **both are now known to have affected the stage-1 run that exists**:
 
-- The rewrite reads the **unfiltered** `chembl_toxicity_labels.csv` (1,207,359 molecules)
-  rather than the filtered `chembl.txt` (1,090,529). That re-admits molecules over 100 atoms
-  **and the BindingDB ligands**, reintroducing exactly the leakage §2.1 of this paper says was
-  removed.
-- `BATCH_SIZE = 16` instead of the paper's 8, so results will not be directly comparable to
-  Tables 1–3.
+- Stage 1 trained on the **unfiltered** ChEMBL export (1,207,359 molecules) rather than the
+  filtered `chembl.txt` (1,090,529). That re-admits molecules over 100 atoms **and the
+  BindingDB ligands**, reintroducing exactly the leakage §2.1 of this paper says was removed —
+  including the fine-tuning validation and held-out test ligands. See
+  [05](05_training_runs_and_diagnostics.md) §4 B2. **This alone prevents comparison with
+  Tables 1–3.**
+- `BATCH_SIZE = 16` in stage 1 instead of the paper's 8. (Stage 2 uses 8, so the two stages are
+  also inconsistent with each other.)
+- The stage-1 collator has **no bond-count cap**, so a molecule with ≥120 bonds raises inside a
+  DataLoader worker. The unfiltered export re-admits such molecules. Whether this ended the
+  stage-1 run early is unverified — [05](05_training_runs_and_diagnostics.md) §4 B6.
+
+### 11.2 What a first end-to-end run showed (2026-10-11)
+
+Eq. 8 is implemented correctly — verified by reconciling the training log against the closed
+form. But **the objective as published did not converge** in this reproduction: non-toxic
+validation NLL degraded from epoch 1 onward while held-out toxicity separation plateaued after
+epoch 2, i.e. the model kept trading general generative quality for toxicity suppression that no
+longer generalised.
+
+Two things to hold in mind before concluding anything about the paper from this:
+
+1. The published repository never implemented Eq. 8 (§11, row 1), so **there is no reference
+   trajectory** — the paper reports results but not a loss curve from this objective.
+2. The run sits downstream of the leakage and batch-size defects above, so it is not yet a clean
+   test of the paper's method. Settle those first.
+
+Numbers, diagnoses and the controls that would isolate the cause:
+[05_training_runs_and_diagnostics.md](05_training_runs_and_diagnostics.md).
 
 ---
 
@@ -449,7 +473,10 @@ a real training run:
 2. **The architecture is untouched by CTDDG.** So the multi-target axis has to be attacked at
    CDGCN's conditioning path, not here.
 3. **`λ = 1` was fixed by argument, not by a sweep.** A λ sweep is cheap and would be a real
-   contribution on its own.
+   contribution on its own. ⚠ Note that `λ = 0` is **not** a CDGCN control — at `λ = 0` the
+   weight is 0 on toxic ligands, dropping them from the batch average rather than training on
+   them normally. It removes the gradient reversal, which is still useful, but the sweep's
+   lower endpoint is not the predecessor model.
 4. **The toxicity gain is modest** (23.30% → 19.32%, overlapping error bars) and comes with a
    small target-awareness cost (95.00% → 93.80%). That trade-off curve is exactly what
    multi-property optimisation should improve.

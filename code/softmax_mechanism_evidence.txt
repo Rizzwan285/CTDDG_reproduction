@@ -1,0 +1,28 @@
+source: /home/claude/ctddg/pretraining_torch.py
+
+Gradient of the CHOSEN action's log-prob wrt its own logit.
+This is the corrective signal for 'make this action more likely'.
+
+ logit scale    p(chosen)   stable |g|   legacy |g|  note
+/home/claude/ctddg/measure_softmax_mechanism.py:32: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  out[stable] = (float(a[0,0,j].exp()), float(rx.grad[0,0,j].abs()))
+           1    3.321e-05            1            1  
+           5    1.075e-14            1    0.0001075  
+          20    0.000e+00            1            0  legacy signal is dead
+          60    0.000e+00            1            0  legacy signal is dead
+         100    0.000e+00            1            0  legacy signal is dead
+        1000    0.000e+00            1            0  legacy signal is dead
+
+Per-action log-prob value (what enters `l`):
+ logit scale    stable logp    legacy logp  note
+           1        -10.313        -10.313  
+          20       -128.217        -23.026  legacy FLOORED at ln(1e-10) = -23.026
+          60       -384.652        -23.026  legacy FLOORED at ln(1e-10) = -23.026
+         100       -641.086        -23.026  legacy FLOORED at ln(1e-10) = -23.026
+        1000      -6410.862        -23.026  legacy FLOORED at ln(1e-10) = -23.026
+
+Clamp gradient: fraction of logits outside +/-80 that receive EXACTLY zero grad
+  1267/2904 logits outside +/-80 (43.6%)
+  of those, 1267 have exactly zero gradient
+  stable path: 0 of 1222 zero

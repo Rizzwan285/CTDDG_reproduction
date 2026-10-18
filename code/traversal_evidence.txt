@@ -1,0 +1,25 @@
+source: /home/claude/ctddg/pretraining_torch.py
+
+OLD traversal: 419/2000 traversals leave atoms unvisited
+NEW traversal: 0/2000
+
+molecules affected by OLD (13/20):
+  100/100  CC(C)(C)c1ccccc1
+  100/100  Cc1ccc(cc1)S(=O)(=O)N
+  100/100  CC(C)(C)NCC(O)c1ccc(O)c(CO)c1
+  100/100  CC(C)(N)Cc1ccccc1
+    4/100  CC(=O)Oc1ccccc1C(=O)O
+    3/100  CC(C)Cc1ccc(cc1)C(C)C(=O)O
+    3/100  COc1ccc2cc(ccc2c1)C(C)C(=O)O
+    2/100  CC(=O)OC1=CC=CC=C1C(=O)O
+    2/100  CCN(CC)CCNC(=O)c1ccc(N)cc1
+    2/100  CN(C)C(=O)Nc1ccccc1
+    1/100  CC(=O)Nc1ccc(O)cc1
+    1/100  OC(=O)c1ccccc1O
+    1/100  CC(C)NCC(O)COc1cccc2ccccc12
+
+NEW traversal validity over 2000 random draws on the full set:
+  0 invalid permutations; log_p range [-11.161, -0.223] (must be <= 0)
+
+'upstream_broken' vs the historical traverse_OLD, same seed per draw:
+  1000/1000 draws match the historical traversal exactly (or agree that it left atoms unvisited)

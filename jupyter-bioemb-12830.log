@@ -1,0 +1,54 @@
+Compute node: node004
+Python: /home/muhamed/.conda/envs/bioemb/bin/python
+Conda environment: /home/muhamed/.conda/envs/bioemb
+Sat Oct 10 20:21:25 2026       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 530.30.02              Driver Version: 530.30.02    CUDA Version: 12.1     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                  Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf            Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA L40                      Off| 00000000:0D:00.0 Off |                    0 |
+| N/A   36C    P0               83W / 300W|      0MiB / 46068MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+|   1  NVIDIA L40                      Off| 00000000:B5:00.0 Off |                    0 |
+| N/A   39C    P0               84W / 300W|      0MiB / 46068MiB |      6%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|  No running processes found                                                           |
++---------------------------------------------------------------------------------------+
+[I 2026-10-10 20:21:29.291 ServerApp] jupyter_lsp | extension was successfully linked.
+[I 2026-10-10 20:21:29.294 ServerApp] jupyter_server_terminals | extension was successfully linked.
+[I 2026-10-10 20:21:29.296 ServerApp] jupyterlab | extension was successfully linked.
+[I 2026-10-10 20:21:29.299 ServerApp] notebook | extension was successfully linked.
+[I 2026-10-10 20:21:29.946 ServerApp] notebook_shim | extension was successfully linked.
+[I 2026-10-10 20:21:29.974 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2026-10-10 20:21:29.976 ServerApp] jupyter_lsp | extension was successfully loaded.
+[I 2026-10-10 20:21:29.977 ServerApp] jupyter_server_terminals | extension was successfully loaded.
+[I 2026-10-10 20:21:29.988 LabApp] JupyterLab extension loaded from /home/muhamed/.conda/envs/bioemb/lib/python3.9/site-packages/jupyterlab
+[I 2026-10-10 20:21:29.988 LabApp] JupyterLab application directory is /home/muhamed/.conda/envs/bioemb/share/jupyter/lab
+[I 2026-10-10 20:21:29.988 LabApp] Extension Manager is 'pypi'.
+[I 2026-10-10 20:21:30.034 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2026-10-10 20:21:30.037 ServerApp] notebook | extension was successfully loaded.
+[I 2026-10-10 20:21:30.037 ServerApp] Serving notebooks from local directory: /home/muhamed/repo/CTDDG
+[I 2026-10-10 20:21:30.037 ServerApp] Jupyter Server 2.18.2 is running at:
+[I 2026-10-10 20:21:30.037 ServerApp] http://node004:8890/lab?token=68e9d82a8bda0a79b06c5ca73ac60923140b53f9eff9167a
+[I 2026-10-10 20:21:30.037 ServerApp]     http://127.0.0.1:8890/lab?token=68e9d82a8bda0a79b06c5ca73ac60923140b53f9eff9167a
+[I 2026-10-10 20:21:30.037 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 2026-10-10 20:21:30.048 ServerApp] 
+    
+    To access the server, open this file in a browser:
+        file:///home/muhamed/.local/share/jupyter/runtime/jpserver-1779549-open.html
+    Or copy and paste one of these URLs:
+        http://node004:8890/lab?token=68e9d82a8bda0a79b06c5ca73ac60923140b53f9eff9167a
+        http://127.0.0.1:8890/lab?token=68e9d82a8bda0a79b06c5ca73ac60923140b53f9eff9167a
+[I 2026-10-10 20:21:30.069 ServerApp] Skipped non-installed server(s): basedpyright, bash-language-server, dockerfile-language-server-nodejs, javascript-typescript-langserver, jedi-language-server, julia-language-server, pyrefly, pyright, python-language-server, python-lsp-server, r-languageserver, sql-language-server, texlab, typescript-language-server, unified-language-server, vscode-css-languageserver-bin, vscode-html-languageserver-bin, vscode-json-languageserver-bin, yaml-language-server
+slurmstepd: error: *** JOB 12830 ON node004 CANCELLED AT 2026-10-10T20:22:40 ***

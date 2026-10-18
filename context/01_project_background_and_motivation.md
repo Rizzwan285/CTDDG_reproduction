@@ -8,7 +8,12 @@
 >
 > **This repository is `Rizzwan285/CTDDG_reproduction`** — a fork of the published
 > `sahelybhadra/CTDDG`, in which the CTDDG paper is being reproduced and repaired. Everything
-> in §5–§6 describes what is actually on disk here, verified 2026-09-26.
+> in §5–§6 describes what is actually on disk here, verified 2026-09-26 and updated 2026-10-11.
+>
+> **For what has been run and what the output showed, see
+> [05_training_runs_and_diagnostics.md](05_training_runs_and_diagnostics.md).** That file is the
+> one to read before launching anything expensive; this file is the standing description of the
+> project and the tree.
 
 ---
 
@@ -158,8 +163,8 @@ Anything proposed for the extension has to fit within — or deliberately break 
 - Build a **working, properly structured, runnable** implementation of the CDGCN/CTDDG model,
   replacing the published single-giant-cell notebooks with real, sectioned code.
 - Implement the **CTDDG toxicity loss (Eq. 8)** for real, with real toxicity labels on both
-  ChEMBL (pretraining) and BindingDB (fine-tuning). *ChEMBL side done; BindingDB side not
-  started.*
+  ChEMBL (pretraining) and BindingDB (fine-tuning). *Both sides now done — ChEMBL by the Ames
+  RF, BindingDB by the same RF rather than pkCSM (§4.2 Q6).*
 - Extend conditioning to **multiple target proteins**.
 - Extend the objective to **multiple molecular properties**.
 - Benchmark against CDGCN and CTDDG on their own metrics: validity, uniqueness, Lipinski
@@ -174,9 +179,11 @@ Anything proposed for the extension has to fit within — or deliberately break 
 | 3 | Which properties beyond Ames mutagenicity? (binding affinity, QED, SAS, logP, hERG, hepatotoxicity, …) |
 | 4 | Binary labels with ±λ weights as in CTDDG, or continuous property values with a learned/conditioned head? |
 | 5 | Which dataset supplies multi-target supervision? The BindingDB folds here are one-protein-per-ligand; pairing a ligand with several proteins needs a scheme that does not yet exist. |
-| 6 | Which labeller for the BindingDB ligands? The paper used **pkCSM** (a web server, ~no batch API). Reusing the repo's own Ames Random Forest instead would be consistent across both phases but diverges from the paper. |
-| 7 | Whether to stay on MXNet (retired, fragile pinned stack) or port to PyTorch. |
-| 8 | Whether to keep `BATCH_SIZE = 16` (this repo's reworked notebook) or return to the paper's **8**. Larger batches change the optimisation, and the published numbers were obtained at 8. |
+| ~~6~~ | ~~Which labeller for the BindingDB ligands?~~ **Resolved in code, 2026-10:** the repo's own **Ames Random Forest** labels them, cached in `datasets/data/bindingdb/ligand_ames_labels.csv`. Consistent across both phases; **diverges from the paper**, which used pkCSM. Record it as an experimental deviation, not a reproduction. |
+| ~~7~~ | ~~MXNet or PyTorch?~~ **Resolved, 2026-10: ported to PyTorch.** Pretraining, ProSE embedding and fine-tuning are all PyTorch notebooks now. The MXNet notebooks remain as the audit baseline. |
+| 8 | `BATCH_SIZE`: **partly resolved.** Fine-tuning uses the paper's **8**; the stage-1 PyTorch pretraining run used **16**. Since the published numbers were obtained at 8 throughout, stage 1 would have to be re-run at 8 for a comparable result. See [05](05_training_runs_and_diagnostics.md) §4 B5. |
+| 9 | **New.** How should the fine-tuning model be selected? The paper specifies no rule. `val_nll` penalises successful toxicity suppression by construction and `val_weighted` is unbounded below; `val_l_nontoxic` is the sensible target but is not selectable. See [05](05_training_runs_and_diagnostics.md) §3 D6. |
+| 10 | **New.** Does Eq. 8 as published converge at all? The first reproduction run says no — the toxic branch keeps trading non-toxic likelihood for toxic suppression indefinitely. Whether this is fixable within the paper's formulation, or needs a stabiliser the paper does not have, is open. See [05](05_training_runs_and_diagnostics.md) §3. |
 
 > **Resolved since the earlier draft of this file:** the protein encoder question. This
 > repository's preprocessing calls **ProSE/Bepler** (`prose/embed_sequences.py --pool avg`),
@@ -187,7 +194,10 @@ Anything proposed for the extension has to fit within — or deliberately break 
 
 ## 5. State of this repository right now
 
-**Current phase: reproducing CTDDG's pretraining stage with the Eq. 8 loss actually connected.**
+**Current phase (2026-10-11): diagnosing the first end-to-end run.** Both training stages exist
+and have been executed once in PyTorch; the fine-tuning result does not converge, and the
+stage-1 checkpoint's provenance is unverified. Full account in
+[05_training_runs_and_diagnostics.md](05_training_runs_and_diagnostics.md).
 
 ### 5.1 Why the upstream code needed a rebuild
 
@@ -234,13 +244,23 @@ positive → mutagenic → **toxic**. The classification report uses
 `target_names=["Ames Negative", "Ames Positive"]`. So the RF's `1` **is** `Toxic_class = 1` in
 Eq. 8, with no inversion.
 
-> ⚠ **`models/ames_random_forest.pkl` is not on disk.** `.gitignore` has a blanket `*.pkl`,
-> and only `models/fingerprint_config.pkl` survives (it was committed before that rule).
-> `models/checking.ipynb` loads the RF by that filename and will fail as things stand.
-> Re-running the training cells of `code/random_forest_classifier.ipynb` regenerates it
-> deterministically (`random_state=42`).
+> ⚠ **`models/ames_random_forest.pkl` was not on disk as of 2026-09-26.** `.gitignore` has a
+> blanket `*.pkl`, and only `models/fingerprint_config.pkl` survives (it was committed before
+> that rule). Re-running the training cells of `code/random_forest_classifier.ipynb` regenerates
+> it deterministically (`random_state=42`).
+>
+> `02_finetune_ctddg.ipynb` has `RF_AUTO_TRAIN = True`, so it rebuilds the RF in place if the
+> file is missing or unreadable by the current sklearn. **Whether the `.pkl` now on disk is the
+> original or an auto-rebuild is unverified**, and the two are not guaranteed identical: the
+> notebook's rebuild adds an RDKit-parseability filter the original did not have, which can shift
+> the dedup count below 7,083 and move the split. The label cache records a SHA-256 of whichever
+> model wrote it, so a swap is detected — it just is not recorded here which one it was.
 
-### 5.3 ChEMBL labelling and the reworked pretraining notebook
+### 5.3 ChEMBL labelling and the pretraining notebooks
+
+> **Lineage.** Upstream MXNet export → MXNet rewrite (`code/pretraining copy.ipynb`) → **PyTorch
+> port, which is what actually produced `checkpoints/ckpt.pt`** (§5.3.2). The MXNet rewrite is
+> superseded; it is described below because the F1–F13 audit trail runs through it.
 
 **Labelled ChEMBL.** The same notebook applies the RF to the full ChEMBL export and writes
 `datasets/data/chembl/chembl_toxicity_labels.csv` (377 MB; the notebook calls it
@@ -266,15 +286,18 @@ training loop), replacing the upstream single cell. Against `PRETRAINING_REVIEW.
 | **F8** — guarded SMILES parsing | ✅ replaced by an "OOV shield" that pre-filters molecules with out-of-vocabulary atoms in the collator |
 | **F9** — debug prints | ✅ gone |
 | **F11** — RDKit logging, split cells | ✅ `RDLogger.DisableLog('rdApp.*')`, 36 cells |
-| **F12** — log the toxic/non-toxic branches separately | ❌ not done — the log is still one scalar |
-| **F13** — divergence guard on the toxic branch | ❌ not done |
+| **F12** — log the toxic/non-toxic branches separately | ❌ not done *in the MXNet rewrite* — ✅ **done in the PyTorch port**, which writes `l_nontoxic` / `l_toxic` columns |
+| **F13** — divergence guard on the toxic branch | ❌ not done *in the MXNet rewrite* — ⚙️ **present but disabled in the PyTorch port** (`TOX_FLOOR = None`, the paper-faithful default) |
 
 Hyperparameters in the reworked notebook: `BATCH_SIZE = 16` (**paper: 8**), `K_PATHS = 5`,
 `P_ALPHA = 0.8`, `LAMBDA_TOX = 1.0`, `LR = 1e-3`, `DECAY = 1e-3` every 100 steps,
 `CLIP_GRAD = 3.0`, `N_RNN = 3`, `TOTAL_ITERATIONS = 480000`, `SUMMARY_STEP = 5`. The comment in
 the cell says the batch size was raised for an **L40 (48 GB)** GPU.
 
-> ⚠ **Three things to fix before a long run.**
+> ⚠ **Three things to fix before a long run.** Status as carried into the PyTorch port:
+> (1) fixed — `SUMMARY_STEP = 500`; (2) **not fixed — the port trains on the unfiltered CSV, and
+> this is now known to have actually happened**, see [05](05_training_runs_and_diagnostics.md)
+> §4 B2; (3) not fixed — stage 1 ran at `BATCH_SIZE = 16`.
 >
 > 1. **`SUMMARY_STEP = 5` is a debug value.** It saves `ckpt.params` (27.9 MB) *and*
 >    `trainer.status` (55.9 MB) every 5 iterations — ~84 MB of I/O per 5 steps, for 480,000
@@ -293,22 +316,58 @@ the cell says the batch size was raised for an **L40 (48 GB)** GPU.
 >    to Tables 1–3 of either paper. (`trainer.step(batch_size=1)` remains correct — `forward`
 >    already averages over the batch. Do not "fix" it.)
 
-**What has actually been run.** The stored outputs show the notebook executed on a GPU node
+**What the MXNet rewrite actually ran.** Its stored outputs show execution on a GPU node
 (`Active Compute Context: gpu(0)`) through data loading (`Total molecules loaded: 1207359`,
 `Non-Toxic (0) = 919739, Toxic (1) = 287620`), a batch sanity check (`Batch size (N): 16,
 Paths per molecule (K): 5`, `X shape: (28694,)`) and model construction
-(`Total trainable parameters: 6,986,506`). **The training-loop cell has no output.**
-`checkpoints/` holds `ckpt.params` and `trainer.status` from 2026-09-16, but `log.out` was
-truncated to its header on 2026-09-17 by a re-run with `FORCE_RESTART = True`, so **there is
-no logged training progress at all**. Treat the checkpoint as a smoke-test artifact, not a
-trained model.
+(`Total trainable parameters: 6,986,506`). **The training-loop cell has no output**, and
+`checkpoints/log.out` was truncated to its header on 2026-09-17 by a re-run with
+`FORCE_RESTART = True`. The MXNet artifacts `ckpt.params` / `trainer.status` (2026-09-16) are a
+**smoke-test artifact, not a trained model.**
 
-> For reference, a completed **480,000-iteration unconditional run** (the CDGCN objective,
+> For reference, a completed **480,000-iteration unconditional run** (the **CDGCN** objective,
 > batch 8, final loss 15.99 after 2,799 h of accumulated wall-clock) exists in the *other*
 > repository, at `../CTDDG_new/outputs/pretrain/`. Same architecture, same parameter count,
 > different weights. It predates the Eq. 8 work and is **not** a CTDDG model.
+>
+> ⚠ **Do not use 15.99 as a yardstick for any PyTorch number.** Different framework, different
+> objective (unweighted, so that column *is* an NLL; the PyTorch `loss` column is the Eq. 8
+> weighted loss and goes negative), different repository. See
+> [05](05_training_runs_and_diagnostics.md) §6.
 
-### 5.4 BindingDB — preprocessing partly done, embeddings not started
+#### 5.3.1 The MXNet rewrite — superseded
+
+`code/pretraining copy.ipynb` remains on disk as the record of the F1–F13 work. It is not what
+produced the current checkpoint and should not be run.
+
+#### 5.3.2 The PyTorch pretraining port — what produced `checkpoints/ckpt.pt`
+
+A line-for-line PyTorch port of the MXNet pretraining notebook. Architecture, loss and
+hyperparameters unchanged; only framework mechanics differ. (Its exact filename in the tree is
+not recorded here — identify it by its header, *"CTDDG Pretraining — PyTorch port"*.)
+
+| | Value |
+|---|---|
+| Objective | **CTDDG Eq. 8**, `LAMBDA_TOX = 1.0`, `TOX_FLOOR = None` |
+| Data | `chembl_with_ames_predictions.csv` — **unfiltered** (see the warning above) |
+| Batch / K / α | **16** / 5 / 0.8 |
+| LR / decay / clip | 1e-3 / 1e-3 per 100 steps / 3.0 |
+| Length / checkpoint | 480,000 iterations / every **500** steps |
+| Artifacts | `checkpoints/ckpt.pt`, `trainer.pt`, `configs.json`, `log.out` (`step, time(h), loss, lr, l_nontoxic, l_toxic`) |
+| Parameters | **6,981,514** trainable **+ 4,992** BatchNorm running stats **= 6,986,506**, matching MXNet (which counted the buffers as parameters) |
+
+Deliberate deviations from the MXNet original, all flagged inline with `# PORT:`:
+`optimizer.zero_grad()` added; `self.dense(X)` computed once instead of twice; CSV read with
+`usecols`; stricter toxicity-column detection (the original's `'label' in c.lower()` would have
+matched ChEMBL's **`BAO Label`** column); per-branch logging (F12); optional toxic floor (F13,
+off); `.pt` filenames so a torch checkpoint cannot be mistaken for the MXNet one beside it.
+
+> ⚠ **How much of the 480,000 iterations actually ran is unverified.** `max(num_batches_tracked)`
+> in `ckpt.pt` is the exact count — see [05](05_training_runs_and_diagnostics.md) §4 B1 for why,
+> and §5 for how to read it. The port also has **no bond-count cap** in its collator, which
+> predicts a crash on any molecule with ≥120 bonds (§4 B6).
+
+### 5.4 BindingDB — preprocessing done, embeddings done for fold d1
 
 `datasets/data/bindingdb/` holds Grechishnikova's five folds, already expanded:
 
@@ -337,56 +396,67 @@ fold repair, FASTA export, needle alignments, ligand filtering (>100 atoms dropp
 vocabulary construction, BindingDB-ligand removal from ChEMBL, ProSE embedding, and assembly of
 the final per-model training files.
 
-**Where it stops:** the `*_bepler.fa` inputs exist for all ten splits, but **no
-`*_embeddings_bepler.txt` exists anywhere**. Cell 82 —
+**Embeddings — resolved for d1 (2026-10).** `01_generate_prose_embeddings.ipynb` (conda env
+**`bioemb`**) now drives ProSE from a vendored `prose/` checkout with
+`saved_models/prose_mt_3x1024.sav`, embedding each split in resumable shards of 128 and merging
+them atomically into `<fold>_<tr|te>_unique_embeddings_bepler.h5` — one average-pooled
+`(6165,)` vector per protein, keyed `p1 … pN`, validated for shape and finiteness.
 
-```python
-os.system(f'python prose/embed_sequences.py --pool avg -o {filename}_embeddings_bepler.h5 '
-          f'{filename}_proteins_bepler.fa')
+- **Fold d1 (train + test) is done** — [CONFIRMED] because `02_finetune_ctddg.ipynb` loaded
+  those files and passed `verify_fasta_order`, which compares the bepler FASTA against the
+  protein list record for record and refuses to start on a mismatch.
+- The notebook ships with `FOLDS = ["d1"]`. **Whether d2–d5 have been embedded is unverified.**
+- `DEVICE = -1`, i.e. **CPU**. The `resolve_device` helper only falls back to GPU when `DEVICE`
+  is `None`, so set it explicitly if you want the GPU.
+- The notebook's own header promises a Slurm job as step 6; the notebook ends at verification.
+
+> Note the format change: the file is **`.h5`**, not the `.txt` the older preprocessing chain
+> and `04` §5.1 describe. The fine-tuning notebook reads `.h5` directly and assembles pairs from
+> the raw fold files, so the tab-delimited `<SMILES>\t<c_1>…` intermediate is no longer needed.
+
+### 5.5 The blocking chain — cleared as far as a conditional checkpoint
+
+The old blocker (no ProSE embeddings, no fine-tuning loop) is gone. `02_finetune_ctddg.ipynb`
+is a self-contained PyTorch fine-tuning notebook: it loads `checkpoints/ckpt.pt`, adds the
+conditioning path, assembles pairs straight from the raw fold files, labels ligands with the
+Ames RF, trains under Eq. 8, and writes `outputs/finetune/<fold>/`.
+
+What now blocks progress is **validity, not plumbing**:
+
+```
+stage-1 provenance unverified  ──┐
+BindingDB ligands leaked into    ├─> the fine-tuning result cannot be interpreted
+  stage-1 pretraining data     ──┤    or compared to the paper
+conditioning scale unmeasured  ──┘
+      └─> no trustworthy conditional checkpoint
+            └─> generation / evaluation / docking still not started
 ```
 
-— has not been run, and `prose/` is not vendored in this repository. That single step is the
-blocker for everything downstream.
+See [05_training_runs_and_diagnostics.md](05_training_runs_and_diagnostics.md) §4 for each
+blocker and §5 for the evidence that settles them.
 
-### 5.5 The immediate blocking chain
-
-```
-ProSE/Bepler not installed → no *_embeddings_bepler.txt
-  └─> paired fine-tuning file (SMILES \t 6165 floats) cannot be assembled
-        └─> conditional fine-tuning cannot run …
-              └─> … and there is no fine-tuning loop in this repo anyway
-                    └─> no conditional checkpoint → no generation → no evaluation → no docking
-```
-
-Two things make this less bad than it looks:
-
-1. **The fine-tuning loop exists next door.** `../CDGCN/models/Finetuning.ipynb` (38 cells) has
-   the complete conditional training loop CTDDG is missing — `CVanillaMolGen_RNN`,
-   `EarlyStopping(patience=10)`, resume logic, `N_C = 6165`, `lr = 1e-4`, `decay = 0.002`,
-   `max_epochs = 10`, `summary_step = 200`. Porting it and adding the Eq. 8 weight is a far
-   smaller job than writing one.
-2. **The file format is already pinned.** CDGCN's `Delimited` conditional reader expects
-   `"<SMILES>\t<c_1>\t<c_2>\t…"` — one line per pair, tab-separated. This repo's preprocessing
-   notebook writes exactly that shape (cells 115–119, `d3_va_dggnp.txt`), and
-   `code/Generating_samples.ipynb` reads it back the same way. Match it and nothing downstream
-   needs to change.
+Still true and still useful: `../CDGCN/models/Finetuning.ipynb` (38 cells) is the reference the
+PyTorch loop was built against — `EarlyStopping(patience=10)`, resume logic, `N_C = 6165`,
+`lr = 1e-4`, `decay = 0.002`, `max_epochs = 10`, `summary_step = 200`, `batch_size = 8`.
 
 ### 5.6 Summary table
 
-| Item | State |
+| Item | State (2026-10-11) |
 |---|---|
-| Environment `ctddg_env` (Python 3.9, MXNet + CUDA) | Working; verified on a GPU node (`gpu(0)`) |
+| Framework | ✅ **PyTorch** for all three live notebooks. `ctddg_env` (MXNet) remains for the superseded notebooks; `bioemb` for ProSE |
 | Ames RF classifier trained and evaluated | ✅ Done — 0.811 acc / 0.890 ROC-AUC |
-| `models/ames_random_forest.pkl` present | ❌ Missing from disk (gitignored); regenerate before use |
-| ChEMBL labelled with real Ames predictions | ✅ `chembl_toxicity_labels.csv`, 23.8% toxic |
-| Upstream `chembl_final.txt` | ⚠️ Still the dummy file — all 1,090,529 lines labelled `1` |
-| Eq. 8 implemented | ✅ In `code/pretraining copy.ipynb` |
-| Pretraining launched for real | ❌ `log.out` is header-only; checkpoint is a smoke test |
-| Pretraining data provenance | ⚠️ Unfiltered CSV — oversized molecules and BindingDB leakage |
+| `models/ames_random_forest.pkl` present | ⚠️ Unverified which copy is on disk — may be an auto-rebuild (§5.2) |
+| ChEMBL labelled with real Ames predictions | ✅ 23.8% toxic. ⚠️ Two filenames in circulation (§5.3.2) |
+| Upstream `chembl_final.txt` | ⚠️ Still the dummy file — all 1,090,529 lines labelled `1`. Do not train on it |
+| Eq. 8 implemented | ✅ In **both** stages, `λ = 1.0`, `TOX_FLOOR = None`. Verified correct by reconciliation — [05](05_training_runs_and_diagnostics.md) §3 D1 |
+| Stage-1 pretraining run | ⚠️ A run happened and produced `checkpoints/ckpt.pt`; **how many iterations is unverified** — [05](05_training_runs_and_diagnostics.md) §4 B1 |
+| Stage-1 data provenance | ❌ **Unfiltered CSV — BindingDB ligands leaked into pretraining.** The most serious open issue — [05](05_training_runs_and_diagnostics.md) §4 B2 |
 | BindingDB folds, FASTA, needle alignments | ✅ On disk |
-| ProSE/Bepler protein embeddings | ❌ Not generated; `prose/` not installed |
-| Conditional fine-tuning loop | ❌ Absent here; reference version in `../CDGCN` |
+| ProSE/Bepler protein embeddings | ✅ Fold **d1** (train + test). d2–d5 unverified |
+| Conditional fine-tuning loop | ✅ `02_finetune_ctddg.ipynb`, self-contained PyTorch |
+| Fine-tuning run | ⚠️ One completed on d1 (6 epochs). **Does not converge** — best epoch is 1 and non-toxic validation NLL degrades after it. [05](05_training_runs_and_diagnostics.md) §2–3 |
 | Generation / evaluation / docking | ❌ Not started; notebooks still carry `/workspace/...` paths |
+| Comparable to the paper's Tables 1–3 | ❌ **No** — stage-1 leakage (B2), `BATCH_SIZE = 16` in stage 1 (B5), and RF instead of pkCSM for BindingDB labels |
 
 ---
 
@@ -397,7 +467,10 @@ Two things make this less bad than it looks:
 | Path | What it is |
 |---|---|
 | `code/pretraining.ipynb`, `code/pretraining.py` | The **upstream** Colab export and its flat extraction (1,509 lines / 1,508 lines). Unmodified — `/workspace` paths, `mx.gpu()`, `tox_class = [1] * k`. Kept as the audit baseline |
-| `code/pretraining copy.ipynb` | **The live rewrite.** 36 cells, Eq. 8 connected, local paths, real labels |
+| `code/pretraining copy.ipynb` | The **MXNet** rewrite — 36 cells, Eq. 8 connected, local paths, real labels. **Superseded by the PyTorch port**; kept for the F1–F13 trail |
+| PyTorch pretraining port (filename not recorded) | **Stage 1 as actually run.** Eq. 8, `λ=1`, batch 16, 480k target, writes `checkpoints/*.pt`. Header: *"CTDDG Pretraining — PyTorch port"*. See §5.3.2 |
+| `01_generate_prose_embeddings.ipynb` | ProSE/Bepler embedding driver, env `bioemb`, resumable shards → `*_unique_embeddings_bepler.h5`. Fold d1 done |
+| `02_finetune_ctddg.ipynb` | **Stage 2.** Self-contained PyTorch conditional fine-tuning with Eq. 8, Ames-RF ligand labelling, FASTA-order verification, atomic checkpoints, provenance reporting. 81 cells |
 | `code/PRETRAINING_REVIEW.md` | Line-by-line review of the upstream notebook against the paper; F1–F13 change list |
 | `code/random_forest_classifier.ipynb` | Ames RF: Hansen → merge → Morgan → RF → metrics → ChEMBL annotation |
 | `code/data_preprocessing_1.ipynb` | Upstream BindingDB preprocessing (still `/workspace/mtp_data/`) |
@@ -412,7 +485,10 @@ Two things make this less bad than it looks:
 | `datasets/data/data_preprocessing_bindingdb.ipynb` | The repathed, extended preprocessing chain — the one to use |
 | `models/fingerprint_config.pkl` | `{'type': 'Morgan', 'radius': 2, 'n_bits': 2048}` |
 | `models/checking.ipynb` | Loads the RF + config and predicts on aspirin / 2-nitrofluorene. Needs the missing `.pkl` |
-| `checkpoints/` | `ckpt.params`, `trainer.status`, `configs.json`, header-only `log.out`. Gitignored |
+| `checkpoints/` | **MXNet:** `ckpt.params`, `trainer.status` (2026-09-16 smoke test), header-only `log.out`. **PyTorch:** `ckpt.pt`, `trainer.pt`, `configs.json`, `log.out`. Gitignored. ⚠ Note `log.out` is shared by both lineages — the PyTorch run rewrites it |
+| `outputs/finetune/<fold>/` | Stage-2 artifacts: `ckpt_best.pt` (evaluate this), `ckpt_last.pt` (resume), `trainer.pt`, `configs.json`, `log.out`, `val.out`, `test_set.npz`, `split_manifest.json`. A `LIMIT_PAIRS` run writes `.smoke` variants of the last two |
+| `datasets/data/bindingdb/ligand_ames_labels.csv` + `.meta.json` | Ames labels for BindingDB ligands, with a SHA-256 fingerprint of the RF that produced them. Rejected and rebuilt if the model cannot be verified |
+| `prose/` | Vendored ProSE checkout + `saved_models/prose_mt_3x1024.sav` |
 | `supplimentaryAPIN.pdf` | CTDDG supplementary — Table S1 (top-10 CDK2 SMILES), Table S2 (MD interactions) |
 | `Molecular_dynamics_files.zip`, `Moleculsr_docking_top10GeneratedMol.zip` | The paper's *results*, shipped by the authors — not the code that produced them |
 | `context/` | **This folder** |
@@ -463,5 +539,13 @@ Four traps:
 - `CTDGD` in output paths is a typo for CTDDG, but it is load-bearing across three notebooks.
 - **`chembl_final.txt` is not the labelled file.** It is `chembl.txt` with a dummy `" 1"`
   appended to every line. The real labels are in `chembl_toxicity_labels.csv`.
-- **`code/pretraining copy.ipynb` is the current one**, despite the name. `pretraining.ipynb`
-  is the untouched upstream export.
+- **`code/pretraining copy.ipynb` is no longer the current one.** It was, in the MXNet era.
+  Stage 1 as actually run is the **PyTorch port**; `pretraining.ipynb` is the untouched upstream
+  export. Three implementations now coexist — check which one you are reading
+  ([04_model_architecture.md](04_model_architecture.md) §9).
+- **`checkpoints/log.out` is written by both the MXNet and the PyTorch pretraining notebooks.**
+  Its header row tells you which: the PyTorch one adds `l_nontoxic` and `l_toxic` columns.
+- **`λ = 0` does not recover CDGCN**, despite [04](04_model_architecture.md) §6.5 saying the
+  weight reduces to CDGCN's loss. The weight `1 − (1+0)·tox` is **1 for non-toxic and 0 for
+  toxic**, so toxic ligands are *dropped from the batch average*, not trained on normally. It
+  removes the gradient reversal, which makes it a useful control, but it is not CDGCN.
