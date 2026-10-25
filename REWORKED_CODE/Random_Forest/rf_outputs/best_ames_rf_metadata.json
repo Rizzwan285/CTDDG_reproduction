@@ -1,0 +1,50 @@
+{
+  "selected_model": "Previous RF (loaded)",
+  "selection_metric": "ROC-AUC",
+  "selected_model_score": 0.9776445768677011,
+  "selected_fingerprint": {
+    "kind": "morgan",
+    "radius": 2,
+    "n_bits": 2048
+  },
+  "new_model_fingerprint": {
+    "kind": "morgan",
+    "radius": 2,
+    "n_bits": 2048
+  },
+  "new_rf_config": {
+    "n_estimators": 500,
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "hyperparameter_tuning": "not performed",
+  "previous_model_original_path": "/home/muhamed/repo/CTDDG/REWORKED_CODE/Random_Forest/RF_NItesh.joblib",
+  "test_fraction": 0.2,
+  "random_seed": 42,
+  "held_out_test_samples": 1417,
+  "comparison_metrics": [
+    {
+      "Model": "New RF (trained here)",
+      "Accuracy": 0.803105151729005,
+      "Precision": 0.8253094910591472,
+      "Recall": 0.7978723404255319,
+      "F1": 0.8113590263691683,
+      "ROC-AUC": 0.8845164773636218,
+      "Test samples": 1417
+    },
+    {
+      "Model": "Previous RF (loaded)",
+      "Accuracy": 0.9393083980239944,
+      "Precision": 0.9381578947368421,
+      "Recall": 0.9481382978723404,
+      "F1": 0.943121693121693,
+      "ROC-AUC": 0.9776445768677011,
+      "Test samples": 1417
+    }
+  ],
+  "warning_old_model_overlap": "Unknown whether previous RF trained on Hansen test molecules",
+  "warning_model_selection": "Winner chosen on test data; winner test score may be optimistically selected",
+  "warning_smiles_features": "Previous RF feature recipe must be manually verified",
+  "rdkit_version": "2025.09.2",
+  "sklearn_version": "1.3.2"
+}
