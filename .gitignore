@@ -31,11 +31,14 @@ Moleculsr_docking_top10GeneratedMol.zip
 
 # Datasets
 datasets/
-
+REWORKED_CODE/Random_Forest/rf_outputs/new_hansen_rf.joblib
+REWORKED_CODE/chembl.csv
 # OS/editor files
 .DS_Store
 .vscode/
 .idea/
+
+
 
 # ==============================
 # Additional Model Files
