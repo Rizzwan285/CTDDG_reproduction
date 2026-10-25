@@ -1,0 +1,40 @@
+{
+  "labelled_chembl_input": "/home/muhamed/repo/CTDDG/REWORKED_CODE/Random_Forest/rf_outputs/chembl_pretrain_labelled.csv",
+  "bindingdb_inputs": [
+    "/home/muhamed/repo/CTDDG/datasets/data/bindingdb/train_dataset/train_4_org_1042_104/ligands_train_4_org_corrected",
+    "/home/muhamed/repo/CTDDG/datasets/data/bindingdb/test_dataset/test_4_org_1042_104/ligands_test_4_org_corrected",
+    "/home/muhamed/repo/CTDDG/datasets/data/bindingdb/train_dataset/train_4_org_1000_112/ligands_train_4_org_corrected",
+    "/home/muhamed/repo/CTDDG/datasets/data/bindingdb/test_dataset/test_4_org_1000_112/ligands_test_4_org_corrected",
+    "/home/muhamed/repo/CTDDG/datasets/data/bindingdb/train_dataset/train_4_org_1004_122/ligands_train_4_org_corrected",
+    "/home/muhamed/repo/CTDDG/datasets/data/bindingdb/test_dataset/test_4_org_1004_122/ligands_test_4_org_corrected",
+    "/home/muhamed/repo/CTDDG/datasets/data/bindingdb/train_dataset/train_4_org_1002_103/ligands_train_4_org_corrected",
+    "/home/muhamed/repo/CTDDG/datasets/data/bindingdb/test_dataset/test_4_org_1002_103/ligands_test_4_org_corrected",
+    "/home/muhamed/repo/CTDDG/datasets/data/bindingdb/train_dataset/train_4_org_1036_124/ligands_train_4_org_corrected",
+    "/home/muhamed/repo/CTDDG/datasets/data/bindingdb/test_dataset/test_4_org_1036_124/ligands_test_4_org_corrected"
+  ],
+  "existing_atom_types": null,
+  "settings": {
+    "max_atoms": 100,
+    "max_generation_steps": 120,
+    "allow_fragment_changes": false,
+    "max_input_rows": null,
+    "chunk_size": 25000
+  },
+  "bindingdb_counts": {
+    "input_ligands": 900502,
+    "compatible_ligands": 889168,
+    "invalid": 11334
+  },
+  "bindingdb_unique_overlap_keys": 7,
+  "chembl_counts": {
+    "input_rows": 1158233,
+    "kept": 1158227,
+    "bindingdb_overlap": 6
+  },
+  "output_label_counts": {
+    "0": 828802,
+    "1": 329425
+  },
+  "atom_vocab_count": 43,
+  "note": "Ames_prediction is model-predicted mutagenicity, not an experimental ChEMBL label."
+}
