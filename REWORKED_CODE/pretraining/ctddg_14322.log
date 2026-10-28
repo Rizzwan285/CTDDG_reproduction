@@ -1,0 +1,43 @@
+Starting CTDDG training
+Node: node002
+Job ID: 14322
+Mon Oct 26 02:08:44 2026       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 530.30.02              Driver Version: 530.30.02    CUDA Version: 12.1     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                  Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf            Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA A30                      Off| 00000000:17:00.0 Off |                    0 |
+| N/A   38C    P0               32W / 165W|      0MiB / 24576MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   1  NVIDIA A30                      Off| 00000000:CA:00.0 Off |                    0 |
+| N/A   29C    P0               29W / 165W|      0MiB / 24576MiB |     21%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|  No running processes found                                                           |
++---------------------------------------------------------------------------------------+
+PyTorch 2.4.1+cu121 RDKit 2026.03.6 CUDA available: True
+Device: cuda
+Rows 1158227 Ames-negative 828802 Ames-positive 329425
+Atom vocabulary size: 43
+PASS Eq. 8 signs and gradients
+PASS per-intermediate-graph action probabilities sum to 1
+PASS real-record loader and per-molecule labels; graph nodes: 4966
+PASS full network batch forward/backward. Loss: -32.511322021484375 LL: [-208.18911743164062, -273.2117614746094]
+Train: 1100316 Validation holdout: 57911 Fixed evaluation subset: 512
+Holdout class counts: {'0': 41440, '1': 16471}
+Traceback (most recent call last):
+  File "/home/muhamed/repo/CTDDG/REWORKED_CODE/pretraining/ctddg_gpu_run.py", line 816, in <module>
+    torch.set_rng_state(ckpt['torch_rng'])
+  File "/home/muhamed/.conda/envs/ctddg_torch/lib/python3.11/site-packages/torch/random.py", line 19, in set_rng_state
+    default_generator.set_state(new_state)
+TypeError: RNG state must be a torch.ByteTensor

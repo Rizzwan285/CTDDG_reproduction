@@ -1,0 +1,6 @@
+Host: node003
+Job ID: 14367
+CUDA_VISIBLE_DEVICES: 0,1
+PyTorch: 2.4.1+cu121
+CUDA available: True
+GPU: NVIDIA A30

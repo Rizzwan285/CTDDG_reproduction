@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "model": "CDGCN-backbone-CTDDG-Eq8-PyTorch",
+  "model_config": {
+    "n_atom": 43,
+    "n_bond": 4,
+    "D": 2,
+    "F_e": 16,
+    "F_h": [
+      32,
+      64,
+      128,
+      128,
+      256,
+      256
+    ],
+    "F_skip": 256,
+    "F_c": [
+      512
+    ],
+    "F_policy": 128,
+    "n_rnn": 3
+  },
+  "tox_lambda": 1.0,
+  "k_paths": 5,
+  "alpha": 0.8,
+  "batch_size": 32,
+  "seed": 42,
+  "chembl_sha256": "04739a3770f8000c4733853673caca1e8bae46472ee172301b29891016dbb9ed",
+  "atom_types_sha256": "98c9c49f5a4bfd8450a4d5a49681e0146cab8f2f9966d66658879a701471bb83",
+  "n_records": 1158227,
+  "train_records": 1100316,
+  "val_records": 57911,
+  "val_fraction": 0.05,
+  "val_seed": 2026,
+  "val_max_eval_molecules": 512,
+  "max_iter_per_molecule": 120,
+  "learning_rate": 0.001,
+  "lr_decay": 0.001,
+  "lr_decay_step": 100,
+  "grad_clip": 3.0,
+  "weight_decay": 0.0
+}

@@ -1,3 +1,0 @@
-REWORKED_CODE/chembl.csv filter=lfs diff=lfs merge=lfs -text
-REWORKED_CODE/Random_Forest/rf_outputs/new_hansen_rf.joblib filter=lfs diff=lfs merge=lfs -text
-REWORKED_CODE/Random_Forest/rf_outputs/chembl_pretrain_labelled.csv filter=lfs diff=lfs merge=lfs -text

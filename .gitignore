@@ -50,3 +50,20 @@ REWORKED_CODE/chembl.csv
 *.hdf5
 *.onnx
 
+
+# Large datasets and model artifacts
+REWORKED_CODE/chembl.csv
+REWORKED_CODE/Random_Forest/rf_outputs/new_hansen_rf.joblib
+REWORKED_CODE/Random_Forest/rf_outputs/chembl_pretrain_labelled.csv
+
+# Large datasets
+REWORKED_CODE/chembl.csv
+REWORKED_CODE/chembl_preprocessed/
+REWORKED_CODE/Random_Forest/rf_outputs/chembl_pretrain_labelled.csv
+REWORKED_CODE/Random_Forest/rf_outputs/new_hansen_rf.joblib
+
+# Training outputs and logs
+REWORKED_CODE/pretraining/pretraining_runs/
+REWORKED_CODE/pretraining/*.log
+REWORKED_CODE/pretraining/plogs/
+REWORKED_CODE/Random_Forest/CTDDG_pretraining_runs/

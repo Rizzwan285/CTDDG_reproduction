@@ -1,0 +1,97 @@
+Starting CTDDG training
+Node: node002
+Job ID: 14323
+Mon Oct 26 02:15:07 2026       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 530.30.02              Driver Version: 530.30.02    CUDA Version: 12.1     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                  Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf            Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA A30                      Off| 00000000:17:00.0 Off |                    0 |
+| N/A   32C    P0               31W / 165W|      0MiB / 24576MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   1  NVIDIA A30                      Off| 00000000:CA:00.0 Off |                    0 |
+| N/A   30C    P0               29W / 165W|      0MiB / 24576MiB |     20%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|  No running processes found                                                           |
++---------------------------------------------------------------------------------------+
+PyTorch 2.4.1+cu121 RDKit 2026.03.6 CUDA available: True
+Device: cuda
+Rows 1158227 Ames-negative 828802 Ames-positive 329425
+Atom vocabulary size: 43
+PASS Eq. 8 signs and gradients
+PASS per-intermediate-graph action probabilities sum to 1
+PASS real-record loader and per-molecule labels; graph nodes: 4966
+PASS full network batch forward/backward. Loss: -32.511322021484375 LL: [-208.18911743164062, -273.2117614746094]
+Train: 1100316 Validation holdout: 57911 Fixed evaluation subset: 512
+Holdout class counts: {'0': 41440, '1': 16471}
+Resumed from step 11000
+Model parameters: 6969788
+Steps per epoch: 137539 requested steps: 687695
+TRAIN: {'step': 11100, 'epoch_equiv': 0.08070438202982427, 'elapsed_minutes': 0.13, 'train_loss': 34.786338806152344, 'train_loss_window_mean': -6.023998794555664, 'gradient_norm': 81.65299987792969, 'train_neg_ll_mean': -77.46846008300781, 'train_pos_ll_mean': -93.26001739501953, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008948890480710088}
+TRAIN: {'step': 11200, 'epoch_equiv': 0.08143144853459745, 'elapsed_minutes': 0.25, 'train_loss': 76.25437927246094, 'train_loss_window_mean': -4.327725811004639, 'gradient_norm': 124.11803436279297, 'train_neg_ll_mean': -93.12748718261719, 'train_pos_ll_mean': -41.857383728027344, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008939941590229378}
+TRAIN: {'step': 11300, 'epoch_equiv': 0.08215851503937065, 'elapsed_minutes': 0.37, 'train_loss': 25.398258209228516, 'train_loss_window_mean': 6.991229305267334, 'gradient_norm': 176.1954345703125, 'train_neg_ll_mean': -56.34287643432617, 'train_pos_ll_mean': -67.43559265136719, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008931001648639148}
+TRAIN: {'step': 11400, 'epoch_equiv': 0.08288558154414384, 'elapsed_minutes': 0.49, 'train_loss': 56.71411895751953, 'train_loss_window_mean': -5.76138578414917, 'gradient_norm': 574.4463500976562, 'train_neg_ll_mean': -134.60888671875, 'train_pos_ll_mean': -176.9701385498047, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008922070646990509}
+TRAIN: {'step': 11500, 'epoch_equiv': 0.08361264804891703, 'elapsed_minutes': 0.61, 'train_loss': -47.43219757080078, 'train_loss_window_mean': 2.6207034587860107, 'gradient_norm': 132.98146057128906, 'train_neg_ll_mean': -42.28314208984375, 'train_pos_ll_mean': -196.957763671875, 'n_ames_negative': 5, 'n_ames_positive': 3, 'learning_rate': 0.0008913148576343518}
+TRAIN: {'step': 11600, 'epoch_equiv': 0.08433971455369023, 'elapsed_minutes': 0.73, 'train_loss': 27.950042724609375, 'train_loss_window_mean': 2.338776025772095, 'gradient_norm': 94.78093719482422, 'train_neg_ll_mean': -42.90741729736328, 'train_pos_ll_mean': -76.75154113769531, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008904235427767174}
+TRAIN: {'step': 11700, 'epoch_equiv': 0.08506678105846342, 'elapsed_minutes': 0.85, 'train_loss': 50.222923278808594, 'train_loss_window_mean': 2.919811728000641, 'gradient_norm': 254.0810089111328, 'train_neg_ll_mean': -87.29423522949219, 'train_pos_ll_mean': -60.99102020263672, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008895331192339407}
+TRAIN: {'step': 11800, 'epoch_equiv': 0.0857938475632366, 'elapsed_minutes': 0.97, 'train_loss': -57.84696960449219, 'train_loss_window_mean': 1.6875271940231322, 'gradient_norm': 83.67143249511719, 'train_neg_ll_mean': -42.6934928894043, 'train_pos_ll_mean': -225.41439819335938, 'n_ames_negative': 5, 'n_ames_positive': 3, 'learning_rate': 0.0008886435861147067}
+TRAIN: {'step': 11900, 'epoch_equiv': 0.0865209140680098, 'elapsed_minutes': 1.09, 'train_loss': -36.5721435546875, 'train_loss_window_mean': -4.118129930496216, 'gradient_norm': 186.27479553222656, 'train_neg_ll_mean': -51.21961975097656, 'train_pos_ll_mean': -299.94744873046875, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.000887754942528592}
+TRAIN: {'step': 12000, 'epoch_equiv': 0.08724798057278299, 'elapsed_minutes': 1.21, 'train_loss': -48.61524963378906, 'train_loss_window_mean': -12.900823135375976, 'gradient_norm': 178.9881134033203, 'train_neg_ll_mean': -62.15670394897461, 'train_pos_ll_mean': -233.23519897460938, 'n_ames_negative': 5, 'n_ames_positive': 3, 'learning_rate': 0.0008868671875860634}
+TRAIN: {'step': 12100, 'epoch_equiv': 0.08797504707755618, 'elapsed_minutes': 1.33, 'train_loss': -129.03448486328125, 'train_loss_window_mean': -3.3797794342041017, 'gradient_norm': 63.26433563232422, 'train_neg_ll_mean': -41.73814392089844, 'train_pos_ll_mean': -231.49807739257812, 'n_ames_negative': 3, 'n_ames_positive': 5, 'learning_rate': 0.0008859803203984774}
+TRAIN: {'step': 12200, 'epoch_equiv': 0.08870211358232938, 'elapsed_minutes': 1.45, 'train_loss': 22.845972061157227, 'train_loss_window_mean': 0.6883968424797058, 'gradient_norm': 316.97265625, 'train_neg_ll_mean': -60.938777923583984, 'train_pos_ll_mean': -91.43243408203125, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008850943400780789}
+TRAIN: {'step': 12300, 'epoch_equiv': 0.08942918008710257, 'elapsed_minutes': 1.57, 'train_loss': 50.5317268371582, 'train_loss_window_mean': -0.9813914489746094, 'gradient_norm': 100.22613525390625, 'train_neg_ll_mean': -65.60681915283203, 'train_pos_ll_mean': -54.993865966796875, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008842092457380008}
+TRAIN: {'step': 12400, 'epoch_equiv': 0.09015624659187575, 'elapsed_minutes': 1.69, 'train_loss': 60.97447204589844, 'train_loss_window_mean': -0.7307066774368286, 'gradient_norm': 24.36501121520996, 'train_neg_ll_mean': -60.97447204589844, 'train_pos_ll_mean': None, 'n_ames_negative': 8, 'n_ames_positive': 0, 'learning_rate': 0.0008833250364922628}
+TRAIN: {'step': 12500, 'epoch_equiv': 0.09088331309664895, 'elapsed_minutes': 1.81, 'train_loss': 56.749916076660156, 'train_loss_window_mean': -0.1587349319458008, 'gradient_norm': 185.49636840820312, 'train_neg_ll_mean': -120.65742492675781, 'train_pos_ll_mean': -49.7625846862793, 'n_ames_negative': 5, 'n_ames_positive': 3, 'learning_rate': 0.0008824417114557706}
+TRAIN: {'step': 12600, 'epoch_equiv': 0.09161037960142214, 'elapsed_minutes': 1.94, 'train_loss': -71.52322387695312, 'train_loss_window_mean': -1.9674812984466552, 'gradient_norm': 62.77946090698242, 'train_neg_ll_mean': -38.18757629394531, 'train_pos_ll_mean': -181.23402404785156, 'n_ames_negative': 4, 'n_ames_positive': 4, 'learning_rate': 0.0008815592697443149}
+TRAIN: {'step': 12700, 'epoch_equiv': 0.09233744610619533, 'elapsed_minutes': 2.06, 'train_loss': -23.854616165161133, 'train_loss_window_mean': -9.949522294998168, 'gradient_norm': 67.70674896240234, 'train_neg_ll_mean': -45.37473678588867, 'train_pos_ll_mean': -231.5426483154297, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008806777104745705}
+TRAIN: {'step': 12800, 'epoch_equiv': 0.09306451261096853, 'elapsed_minutes': 2.18, 'train_loss': -13.027151107788086, 'train_loss_window_mean': -0.7498376226425171, 'gradient_norm': 52.63188171386719, 'train_neg_ll_mean': -37.72941589355469, 'train_pos_ll_mean': -97.62142944335938, 'n_ames_negative': 5, 'n_ames_positive': 3, 'learning_rate': 0.000879797032764096}
+TRAIN: {'step': 12900, 'epoch_equiv': 0.09379157911574172, 'elapsed_minutes': 2.3, 'train_loss': -49.097412109375, 'train_loss_window_mean': -0.7401533937454223, 'gradient_norm': 173.42315673828125, 'train_neg_ll_mean': -66.41348266601562, 'train_pos_ll_mean': -164.60830688476562, 'n_ames_negative': 4, 'n_ames_positive': 4, 'learning_rate': 0.0008789172357313319}
+TRAIN: {'step': 13000, 'epoch_equiv': 0.0945186456205149, 'elapsed_minutes': 2.42, 'train_loss': 61.96751022338867, 'train_loss_window_mean': 3.022466154098511, 'gradient_norm': 88.72459411621094, 'train_neg_ll_mean': -61.96751022338867, 'train_pos_ll_mean': None, 'n_ames_negative': 8, 'n_ames_positive': 0, 'learning_rate': 0.0008780383184956006}
+TRAIN: {'step': 13100, 'epoch_equiv': 0.0952457121252881, 'elapsed_minutes': 2.54, 'train_loss': -26.6079044342041, 'train_loss_window_mean': 0.1520070457458496, 'gradient_norm': 98.22795867919922, 'train_neg_ll_mean': -66.93473052978516, 'train_pos_ll_mean': -120.15054321289062, 'n_ames_negative': 4, 'n_ames_positive': 4, 'learning_rate': 0.000877160280177105}
+TRAIN: {'step': 13200, 'epoch_equiv': 0.09597277863006129, 'elapsed_minutes': 2.66, 'train_loss': 52.39974594116211, 'train_loss_window_mean': -10.727289485931397, 'gradient_norm': 253.21286010742188, 'train_neg_ll_mean': -81.626708984375, 'train_pos_ll_mean': -152.1890411376953, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008762831198969279}
+TRAIN: {'step': 13300, 'epoch_equiv': 0.09669984513483448, 'elapsed_minutes': 2.78, 'train_loss': 106.32183837890625, 'train_loss_window_mean': -2.6000282192230224, 'gradient_norm': 191.82669067382812, 'train_neg_ll_mean': -136.91098022460938, 'train_pos_ll_mean': -107.80207824707031, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.000875406836777031}
+TRAIN: {'step': 13400, 'epoch_equiv': 0.09742691163960768, 'elapsed_minutes': 2.9, 'train_loss': 30.252178192138672, 'train_loss_window_mean': 2.4028563928604125, 'gradient_norm': 65.88047790527344, 'train_neg_ll_mean': -41.01599884033203, 'train_pos_ll_mean': -45.094566345214844, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.000874531429940254}
+TRAIN: {'step': 13500, 'epoch_equiv': 0.09815397814438087, 'elapsed_minutes': 3.02, 'train_loss': -29.265743255615234, 'train_loss_window_mean': 5.3905166912078855, 'gradient_norm': 105.81816864013672, 'train_neg_ll_mean': -77.48966979980469, 'train_pos_ll_mean': -207.19143676757812, 'n_ames_negative': 5, 'n_ames_positive': 3, 'learning_rate': 0.0008736568985103137}
+TRAIN: {'step': 13600, 'epoch_equiv': 0.09888104464915405, 'elapsed_minutes': 3.14, 'train_loss': -7.193904876708984, 'train_loss_window_mean': 5.873947548866272, 'gradient_norm': 133.4622344970703, 'train_neg_ll_mean': -86.92073059082031, 'train_pos_ll_mean': -164.0516357421875, 'n_ames_negative': 5, 'n_ames_positive': 3, 'learning_rate': 0.0008727832416118034}
+TRAIN: {'step': 13700, 'epoch_equiv': 0.09960811115392725, 'elapsed_minutes': 3.26, 'train_loss': 34.79008865356445, 'train_loss_window_mean': -4.422271418571472, 'gradient_norm': 43.25945281982422, 'train_neg_ll_mean': -75.5342025756836, 'train_pos_ll_mean': -87.44224548339844, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008719104583701916}
+TRAIN: {'step': 13800, 'epoch_equiv': 0.10033517765870044, 'elapsed_minutes': 3.38, 'train_loss': 36.17761993408203, 'train_loss_window_mean': 3.904471354484558, 'gradient_norm': 72.12377166748047, 'train_neg_ll_mean': -45.93601989746094, 'train_pos_ll_mean': -32.13114929199219, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008710385479118214}
+TRAIN: {'step': 13900, 'epoch_equiv': 0.10106224416347363, 'elapsed_minutes': 3.5, 'train_loss': 53.278778076171875, 'train_loss_window_mean': -3.0310897779464723, 'gradient_norm': 294.6809997558594, 'train_neg_ll_mean': -94.53701782226562, 'train_pos_ll_mean': -70.49592590332031, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008701675093639096}
+TRAIN: {'step': 14000, 'epoch_equiv': 0.10178931066824683, 'elapsed_minutes': 3.62, 'train_loss': -14.88961410522461, 'train_loss_window_mean': -0.40150474071502684, 'gradient_norm': 188.71218872070312, 'train_neg_ll_mean': -98.47174835205078, 'train_pos_ll_mean': -203.8251953125, 'n_ames_negative': 5, 'n_ames_positive': 3, 'learning_rate': 0.0008692973418545456}
+TRAIN: {'step': 14100, 'epoch_equiv': 0.10251637717302002, 'elapsed_minutes': 3.75, 'train_loss': -27.886837005615234, 'train_loss_window_mean': -4.4492782497406, 'gradient_norm': 58.06772994995117, 'train_neg_ll_mean': -41.71131134033203, 'train_pos_ll_mean': -236.6812744140625, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008684280445126911}
+TRAIN: {'step': 14200, 'epoch_equiv': 0.10324344367779321, 'elapsed_minutes': 3.87, 'train_loss': 64.90283966064453, 'train_loss_window_mean': 0.17664692878723146, 'gradient_norm': 126.1889877319336, 'train_neg_ll_mean': -79.6195297241211, 'train_pos_ll_mean': -38.11393737792969, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008675596164681784}
+TRAIN: {'step': 14300, 'epoch_equiv': 0.1039705101825664, 'elapsed_minutes': 3.99, 'train_loss': -104.05850982666016, 'train_loss_window_mean': 4.052077035903931, 'gradient_norm': 216.88522338867188, 'train_neg_ll_mean': -31.274131774902344, 'train_pos_ll_mean': -185.2581024169922, 'n_ames_negative': 3, 'n_ames_positive': 5, 'learning_rate': 0.0008666920568517103}
+TRAIN: {'step': 14400, 'epoch_equiv': 0.10469757668733959, 'elapsed_minutes': 4.11, 'train_loss': 49.081356048583984, 'train_loss_window_mean': 2.6407988834381104, 'gradient_norm': 300.3257751464844, 'train_neg_ll_mean': -78.33786010742188, 'train_pos_ll_mean': -155.71412658691406, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008658253647948586}
+TRAIN: {'step': 14500, 'epoch_equiv': 0.10542464319211278, 'elapsed_minutes': 4.23, 'train_loss': 14.768291473388672, 'train_loss_window_mean': 3.556522078514099, 'gradient_norm': 50.74444580078125, 'train_neg_ll_mean': -46.03386306762695, 'train_pos_ll_mean': -204.09068298339844, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008649595394300638}
+TRAIN: {'step': 14600, 'epoch_equiv': 0.10615170969688598, 'elapsed_minutes': 4.35, 'train_loss': -20.18708038330078, 'train_loss_window_mean': -1.7099865341186524, 'gradient_norm': 32.289005279541016, 'train_neg_ll_mean': -38.86821365356445, 'train_pos_ll_mean': -433.57415771484375, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008640945798906337}
+TRAIN: {'step': 14700, 'epoch_equiv': 0.10687877620165917, 'elapsed_minutes': 4.47, 'train_loss': 25.321460723876953, 'train_loss_window_mean': -6.018848118782043, 'gradient_norm': 31.627552032470703, 'train_neg_ll_mean': -38.78681564331055, 'train_pos_ll_mean': -68.93600463867188, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008632304853107431}
+TRAIN: {'step': 14800, 'epoch_equiv': 0.10760584270643236, 'elapsed_minutes': 4.59, 'train_loss': -32.62519836425781, 'train_loss_window_mean': -0.27167640686035155, 'gradient_norm': 68.65548706054688, 'train_neg_ll_mean': -35.662330627441406, 'train_pos_ll_mean': -237.48777770996094, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008623672548254323}
+TRAIN: {'step': 14900, 'epoch_equiv': 0.10833290921120554, 'elapsed_minutes': 4.71, 'train_loss': 20.404346466064453, 'train_loss_window_mean': -6.505748026371002, 'gradient_norm': 34.71726608276367, 'train_neg_ll_mean': -30.45102882385254, 'train_pos_ll_mean': -49.92241668701172, 'n_ames_negative': 7, 'n_ames_positive': 1, 'learning_rate': 0.0008615048875706069}
+TRAIN: {'step': 15000, 'epoch_equiv': 0.10905997571597874, 'elapsed_minutes': 4.83, 'train_loss': 25.122291564941406, 'train_loss_window_mean': -13.287959661483765, 'gradient_norm': 150.38169860839844, 'train_neg_ll_mean': -140.37591552734375, 'train_pos_ll_mean': -320.6385803222656, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008606433826830363}
+VALIDATION: {'step': 15000, 'val_loss': -9.725189089775085, 'val_neg_ll_mean': -76.02280740790029, 'val_pos_ll_mean': -224.68249331435112, 'n_val_molecules': 512, 'n_val_ames_negative': 366, 'n_val_ames_positive': 146}
+TRAIN: {'step': 15100, 'epoch_equiv': 0.10978704222075193, 'elapsed_minutes': 5.0, 'train_loss': 2.801525115966797, 'train_loss_window_mean': -3.2510258245468138, 'gradient_norm': 72.58699798583984, 'train_neg_ll_mean': -41.448394775390625, 'train_pos_ll_mean': -113.13908386230469, 'n_ames_negative': 6, 'n_ames_positive': 2, 'learning_rate': 0.0008597827393003533}
+Traceback (most recent call last):
+  File "/home/muhamed/repo/CTDDG/REWORKED_CODE/pretraining/ctddg_gpu_run.py", line 940, in <module>
+    train()
+  File "/home/muhamed/repo/CTDDG/REWORKED_CODE/pretraining/ctddg_gpu_run.py", line 903, in train
+    batch=collate_graph_records(records,device=DEVICE)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/muhamed/repo/CTDDG/REWORKED_CODE/pretraining/ctddg_gpu_run.py", line 464, in collate_graph_records
+    rec_parts=list(process_single(rec,k,alpha))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/muhamed/repo/CTDDG/REWORKED_CODE/pretraining/ctddg_gpu_run.py", line 393, in process_single
+    graph, atom_types, atom_ranks, bonds, bond_types = get_graph_from_smiles(smiles)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/muhamed/repo/CTDDG/REWORKED_CODE/pretraining/ctddg_gpu_run.py", line 168, in get_graph_from_smiles
+    raise ValueError(f'Fewer than two atoms: {smiles!r}')
+ValueError: Fewer than two atoms: '[15OH2]'

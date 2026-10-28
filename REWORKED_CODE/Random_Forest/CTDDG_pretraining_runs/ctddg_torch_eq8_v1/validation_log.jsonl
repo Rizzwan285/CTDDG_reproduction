@@ -1,0 +1,3 @@
+{"step": 5000, "val_loss": -4.883623644709587, "val_neg_ll_mean": -49.95310819865576, "val_pos_ll_mean": -142.35104713701222, "n_val_molecules": 512, "n_val_ames_negative": 366, "n_val_ames_positive": 146}
+{"step": 10000, "val_loss": -11.051742002367973, "val_neg_ll_mean": -52.90007012789367, "val_pos_ll_mean": -171.36929871284798, "n_val_molecules": 512, "n_val_ames_negative": 366, "n_val_ames_positive": 146}
+{"step": 15000, "val_loss": -9.725189089775085, "val_neg_ll_mean": -76.02280740790029, "val_pos_ll_mean": -224.68249331435112, "n_val_molecules": 512, "n_val_ames_negative": 366, "n_val_ames_positive": 146}
