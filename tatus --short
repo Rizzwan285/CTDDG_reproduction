@@ -1,0 +1,45 @@
+[33mf067625[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m Remove Git LFS tracking
+ .gitattributes                             |       3 [31m-[m
+ .gitignore                                 |       5 [32m+[m
+ ...DDG_ChEMBL_Labelled_Preprocessing.ipynb |     305 [32m+[m[31m-[m
+ .../ctddg_torch_eq8_v1/run_meta.json       |      43 [32m+[m
+ .../ctddg_torch_eq8_v1/train_log.jsonl     |     156 [32m+[m
+ .../validation_log.jsonl                   |       3 [32m+[m
+ REWORKED_CODE/Random_Forest/RF.ipynb       |      62 [32m+[m[31m-[m
+ .../rf_outputs/best_ames_rf.joblib         |     Bin [31m22984665[m -> [32m22984665[m bytes
+ .../chembl_pretrain_labelled.csv           |       3 [31m-[m
+ .../rf_outputs/new_hansen_rf.joblib        |       3 [31m-[m
+ .../atom_types.txt                         |      36 [32m+[m
+ .../chembl.txt                             | 1158214 [32m+++++++++++[m
+ .../chembl_final.txt                       | 1158214 [32m+++++++++++[m
+ .../chembl_preprocessed_labelled.csv       | 1158215 [32m++++++++++++[m
+ .../preprocessing_report.json              |      41 [32m+[m
+ REWORKED_CODE/chembl.csv                   |       3 [31m-[m
+ ...etraining_PyTorch_With_Validation.ipynb |    1106 [32m+[m
+ .../CTDDG_pretraining_final copy.ipynb     |    1211 [32m+[m
+ .../CTDDG_pretraining_final.ipynb          |    1315 [32m+[m
+ .../CTDDG_pretraining_notoxicity.ipynb     |    1109 [32m+[m
+ REWORKED_CODE/pretraining/ctddg_14322.log  |      43 [32m+[m
+ REWORKED_CODE/pretraining/ctddg_14323.log  |      97 [32m+[m
+ REWORKED_CODE/pretraining/ctddg_gpu_run.py |     978 [32m+[m
+ .../pretraining/ctddg_gpu_run.py.bak       |     978 [32m+[m
+ REWORKED_CODE/pretraining/ctddg_train.sh   |      28 [32m+[m
+ .../pretraining/ctddg_training.log         |     129 [32m+[m
+ REWORKED_CODE/pretraining/output.png       |     Bin [31m0[m -> [32m52376[m bytes
+ .../plogs/jupyter-bs8-14367.err            |      89 [32m+[m
+ .../plogs/jupyter-bs8-14367.out            |       6 [32m+[m
+ .../model_config.json                      |      20 [32m+[m
+ .../cdgcn_torch_nll_bs32_v1/run_meta.json  |      43 [32m+[m
+ .../train_log.jsonl                        |    1164 [32m+[m
+ .../validation_log.jsonl                   |      23 [32m+[m
+ .../ctddg_torch_eq8_bs32_v1/run_meta.json  |      43 [32m+[m
+ .../train_log.jsonl                        |    1721 [32m+[m
+ .../validation_log.jsonl                   |      35 [32m+[m
+ .../ctddg_torch_eq8_v1/run_meta.json       |      43 [32m+[m
+ .../ctddg_torch_eq8_v1/train_log.jsonl     |    5639 [32m+[m
+ .../validation_log.jsonl                   |     112 [32m+[m
+ .../run_meta.json                          |      43 [32m+[m
+ .../train_log.jsonl                        |    2183 [32m+[m
+ .../validation_log.jsonl                   |      43 [32m+[m
+ code/pretraining_torch.py                  |    1869 [32m+[m
+ 43 files changed, 3495314 insertions(+), 62 deletions(-)

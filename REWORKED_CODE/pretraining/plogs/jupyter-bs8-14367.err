@@ -87,3 +87,10 @@
 [I 2026-10-28 18:32:31.812 JupyterNotebookApp] 302 GET /tree? (@10.10.10.10) 0.26ms
 [I 2026-10-28 18:32:31.878 ServerApp] Adapting from protocol version 5.3 (kernel b17f2509-514f-425b-a251-8453fca249f3) to 5.4 (client).
 [I 2026-10-28 18:32:31.879 ServerApp] Connecting to kernel b17f2509-514f-425b-a251-8453fca249f3.
+[I 2026-10-28 22:57:57.029 ServerApp] 302 GET / (@10.10.10.10) 0.31ms
+[I 2026-10-28 22:57:58.087 JupyterNotebookApp] 302 GET /tree? (@10.10.10.10) 0.39ms
+[I 2026-10-29 00:47:45.875 ServerApp] Starting buffering for ff5af71a-4b54-414f-8446-141bea523f59:4a81634e-996b-4931-bf53-b777721eb99b
+[I 2026-10-29 00:47:45.876 ServerApp] Starting buffering for b17f2509-514f-425b-a251-8453fca249f3:9cd3e607-1bc4-48ff-90ed-645a34159b87
+[I 2026-10-29 10:27:17.363 ServerApp] 302 GET / (@10.10.10.10) 0.41ms
+[I 2026-10-29 10:27:17.551 JupyterNotebookApp] 302 GET /tree? (@10.10.10.10) 0.43ms
+slurmstepd: error: *** JOB 14367 ON node003 CANCELLED AT 2026-10-29T10:52:41 DUE TO TIME LIMIT ***
