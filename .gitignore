@@ -42,8 +42,11 @@ generated/
 /Moleculsr_docking_top10GeneratedMol.zip
 
 # Downloaded datasets and generated preprocessing artifacts
-# Keep source CSVs outside these paths (for example hansen_dataset) tracked.
 datasets/
+hansen_dataset/
+/REWORKED_CODE/DATA/
+/REWORKED_CODE/BINDINGDB_PROTEIN_ANALYSIS/
+/REWORKED_CODE/PREPROCESSING_OUTPUT/
 /REWORKED_CODE/chembl.csv
 /REWORKED_CODE/pretraining/chembl.csv
 /REWORKED_CODE/chembl_preprocessed/
@@ -51,15 +54,20 @@ datasets/
 /REWORKED_CODE/cd /home/muhamed/repo/CTDDG/.gitignorechembl_preprocessed/
 
 # Random forest training and pretraining outputs
-/REWORKED_CODE/Random_Forest/rf_outputs/
-/REWORKED_CODE/Random_Forest/CTDDG_pretraining_runs/
+rf_outputs/
+CTDDG_pretraining_runs/
+/REWORKED_CODE/PRETRAINING_OUTPUT/
+/REWORKED_CODE/finetuning/finetuning_runs/
 /REWORKED_CODE/pretraining/pretraining_runs/
 /REWORKED_CODE/pretraining/plogs/
 /REWORKED_CODE/pretraining/output.png
 /REWORKED_CODE/model_weights/*/train_log.jsonl
 /REWORKED_CODE/model_weights/*/validation_log.jsonl
+/REWORKED_CODE/model_weights/*/training_log.jsonl
 
 # Generated embeddings, molecule samples, evaluation tables and plots
+/REWORKED_CODE/EVALUATION_OUTPUT/
+/REWORKED_CODE/testing/embeddings_results/
 /REWORKED_CODE/testing/Validity_Analysis/Embeddings_*/
 /REWORKED_CODE/testing/Validity_Analysis/Generated_*/
 /REWORKED_CODE/testing/Validity_Analysis/Evaluation_Results*/
@@ -67,9 +75,16 @@ datasets/
 evaluation_results/
 /REWORKED_CODE/testing/rf_nitesh_audit.json
 /output.png
+/REWORKED_CODE/output.png
 
 # Runtime logs (including Jupyter and scheduler logs under logs/)
 *.log
+/REWORKED_CODE/jupyter_logs/
+
+# Local backups, source archives, and accidental terminal output
+*.bak
+/code/misc/ctddg_repaired.tar.gz
+/tatus --short
 
 # OS/editor files
 .DS_Store

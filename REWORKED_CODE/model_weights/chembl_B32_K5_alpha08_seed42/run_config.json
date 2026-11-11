@@ -1,0 +1,42 @@
+{
+  "initial_target_steps": 120000,
+  "locked_config": {
+    "alpha": 0.8,
+    "batch_size": 32,
+    "dataset_sha256": "a26351a9e8438e633c3824a21f3874609e71dc7d3a05c2f2055f7081c85d4b5b",
+    "grad_clip_value": 3.0,
+    "k_paths": 5,
+    "learning_rate": 0.001,
+    "lr_decay": 0.001,
+    "lr_decay_every": 100,
+    "model_config": {
+      "D": 2,
+      "F_c": [
+        512
+      ],
+      "F_e": 16,
+      "F_h": [
+        32,
+        64,
+        128,
+        128,
+        256,
+        256
+      ],
+      "F_policy": 128,
+      "F_skip": 256,
+      "n_atom": 55,
+      "n_bond": 4,
+      "n_rnn": 3
+    },
+    "objective": "unconditional_importance_sampled_nll",
+    "sampler": "epoch_seeded_permutation_drop_last",
+    "seed": 42,
+    "split_sha256": "c0126bcc5ba1bc930ef6a947ee87f73c8cb61c01940a65eb60b96179ab517526",
+    "validation_molecules": 2048,
+    "validation_seed": 2026,
+    "vocabulary_sha256": "3f2a10321e1301f7a45f6ebb260181c70c0e28ae5c3162bd5c3e713db335184f",
+    "weight_decay": 0.0
+  },
+  "signature": "683cd27fda4784d712c817e316028f28cfa86f7b413f2810fd4c24c100dabf0d"
+}
